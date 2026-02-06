@@ -278,7 +278,7 @@ Now we need to add your email credentials so the automated script can send email
 
    **Secret 1:**
    - Name: `SENDER_EMAIL`
-   - Value: `your_email@gmail.com` (your actual Gmail)
+   - Value: `inger.balaj@gmail.com` (your actual Gmail)
    - Click "Add secret"
 
    **Secret 2:**
