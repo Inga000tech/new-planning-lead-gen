@@ -5,7 +5,7 @@ import pandas as pd
 import time
 
 st.set_page_config(
-    page_title="Mark's Lead Sourcing Engine",
+    page_title="Lead Scouting Engine",
     page_icon="🏗️",
     layout="wide"
 )
@@ -328,7 +328,7 @@ def generate_sample_data(council_name, days_back):
 # MAIN APP
 # ============================================================================
 
-st.title("🏗️ Lead Sourcing Engine for MA Planning")
+st.title("🏗️ Lead Sourcing Engine")
 st.markdown("**Automated qualified lead generation for Urban Planning consultancy**")
 st.markdown("---")
 
