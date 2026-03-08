@@ -24,7 +24,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements_scraper.txt
+        run: pip install -r requirements.txt
 
       - name: Run scraper
         env:
