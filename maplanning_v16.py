@@ -12,7 +12,6 @@ from google.oauth2.service_account import Credentials as SACredentials
 import os, json
 import email_digest
 import pdfplumber
-import streamlit as st
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
