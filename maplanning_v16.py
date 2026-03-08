@@ -27,92 +27,122 @@ WEEKS_TO_SCRAPE = 12
 # Each URL is tested at startup — dead ones are skipped automatically.
 # All use the standard Idox /search.do?action=advanced endpoint.
 COUNCILS = {
-    # GREATER MANCHESTER
-    "Manchester":     "https://pa.manchester.gov.uk/online-applications",
-    "Salford":        "https://publicaccess.salford.gov.uk/online-applications",
-    "Stockport":      "https://www.stockport.gov.uk/planning-applications",
-    "Bolton":         "https://www.bolton.gov.uk/planning-applications",
-    "Bury":           "https://www.bury.gov.uk/planning-applications",
-    "Oldham":         "https://planning.oldham.gov.uk/online-applications",
-    "Rochdale":       "https://planning.rochdale.gov.uk/online-applications",
-    "Tameside":       "https://publicaccess.tameside.gov.uk/online-applications",
-    "Trafford":       "https://publicaccess.trafford.gov.uk/online-applications",
-    "Wigan":          "https://publicaccess.wigan.gov.uk/online-applications",
-    # MERSEYSIDE & CHESHIRE
-    "Liverpool":      "https://planningdocuments.liverpool.gov.uk/online-applications",
-    "Wirral":         "https://planapp.wirral.gov.uk/online-applications",
-    "Knowsley":       "https://pa.knowsley.gov.uk/online-applications",
-    "Warrington":     "https://planning.warrington.gov.uk/online-applications",
-    "Cheshire East":  "https://pa.cheshireeast.gov.uk/online-applications",
-    "Blackburn":      "https://planning.blackburn.gov.uk/online-applications",
-    # WEST YORKSHIRE
-    "Leeds":          "https://publicaccess.leeds.gov.uk/online-applications",
-    "Bradford":       "https://publicaccess.bradford.gov.uk/online-applications",
-    "Calderdale":     "https://planning.calderdale.gov.uk/online-applications",
-    "Wakefield":      "https://planning.wakefield.gov.uk/online-applications",
-    # SOUTH YORKSHIRE
-    "Sheffield":      "https://planningapps.sheffield.gov.uk/online-applications",
-    "Rotherham":      "https://planning.rotherham.gov.uk/online-applications",
-    # EAST MIDLANDS
-    "Leicester":      "https://planning.leicester.gov.uk/online-applications",
-    "Nottingham":     "https://publicaccess.nottinghamcity.gov.uk/online-applications",
-    "Derby":          "https://eplanning.derby.gov.uk/online-applications",
-    "Coventry":       "https://planning.coventry.gov.uk/online-applications",
-    "Peterborough":   "https://planningpa.peterborough.gov.uk/online-applications",
-    # WEST MIDLANDS
-    "Birmingham":     "https://eplanning.birmingham.gov.uk/online-applications",
-    "Wolverhampton":  "https://planning.wolverhampton.gov.uk/online-applications",
-    "Walsall":        "https://planning.walsall.gov.uk/online-applications",
-    "Solihull":       "https://planningpa.solihull.gov.uk/online-applications",
-    # SOUTH WEST
-    "Bristol":        "https://planningonline.bristol.gov.uk/online-applications",
-    "Plymouth":       "https://planning.plymouth.gov.uk/online-applications",
-    "Exeter":         "https://publicaccess.exeter.gov.uk/online-applications",
-    "Cornwall":       "https://planning.cornwall.gov.uk/online-applications",
-    "Swindon":        "https://pa.swindon.gov.uk/online-applications",
-    "Gloucester":     "https://planning.gloucester.gov.uk/online-applications",
-    # SOUTH EAST
-    "Brighton":       "https://planningapps.brighton-hove.gov.uk/online-applications",
-    "Oxford":         "https://publicaccess.oxford.gov.uk/online-applications",
-    "Portsmouth":     "https://publicaccess.portsmouth.gov.uk/online-applications",
-    "Southampton":    "https://planning.southampton.gov.uk/online-applications",
-    "Reading":        "https://planning.reading.gov.uk/online-applications",
-    "Milton Keynes":  "https://publicaccess.milton-keynes.gov.uk/online-applications",
-    "Medway":         "https://planning.medway.gov.uk/online-applications",
-    "Canterbury":     "https://planning.canterbury.gov.uk/online-applications",
-    # EAST OF ENGLAND
-    "Norfolk":        "https://idoxpa.north-norfolk.gov.uk/online-applications",
-    "Norwich":        "https://planningonline.norwich.gov.uk/online-applications",
-    "Ipswich":        "https://planning.ipswich.gov.uk/online-applications",
-    "Cambridge":      "https://planning.cambridge.gov.uk/online-applications",
-    "Luton":          "https://online.luton.gov.uk/online-applications",
-    "Chelmsford":     "https://publicaccess.chelmsford.gov.uk/online-applications",
-    # LONDON
-    "Westminster":    "https://idoxpa.westminster.gov.uk/online-applications",
-    "Camden":         "https://camdocs.camden.gov.uk/online-applications",
-    "Southwark":      "https://planning.southwark.gov.uk/online-applications",
-    "Ealing":         "https://pam.ealing.gov.uk/online-applications",
-    "Islington":      "https://planning.islington.gov.uk/online-applications",
-    "Hackney":        "https://planning.hackney.gov.uk/online-applications",
-    "Lewisham":       "https://planning.lewisham.gov.uk/online-applications",
-    "Lambeth":        "https://planning.lambeth.gov.uk/online-applications",
-    "Newham":         "https://planning.newham.gov.uk/online-applications",
-    "Croydon":        "https://publicaccess.croydon.gov.uk/online-applications",
-    "Barnet":         "https://publicaccess.barnet.gov.uk/online-applications",
-    "Enfield":        "https://planningandbuildingcontrol.enfield.gov.uk/online-applications",
-    "Brent":          "https://pa.brent.gov.uk/online-applications",
-    "Tower Hamlets":  "https://development.towerhamlets.gov.uk/online-applications",
-    "Greenwich":      "https://planning.royalgreenwich.gov.uk/online-applications",
-    "Waltham Forest": "https://planning.walthamforest.gov.uk/online-applications",
-    "Wandsworth":     "https://planning.wandsworth.gov.uk/online-applications",
-    "Haringey":       "https://www.haringey.gov.uk/planning-applications",
-    # NORTH EAST
-    "Newcastle":      "https://publicaccess.newcastle.gov.uk/online-applications",
-    "Gateshead":      "https://publicaccess.gateshead.gov.uk/online-applications",
-    "Sunderland":     "https://www.sunderland.gov.uk/planning",
-    # WALES
-    "Cardiff":        "https://planningonline.cardiff.gov.uk/online-applications",
-    "Newport":        "https://www1.newport.gov.uk/online-applications",
+    # ── GREATER MANCHESTER ──────────────────────────────────
+    # Manchester: correct URL confirmed; HTTP 500 is intermittent server load
+    "Manchester":    "https://pa.manchester.gov.uk/online-applications",
+    "Salford":       "https://publicaccess.salford.gov.uk/online-applications",
+    # Bolton uses non-standard path /online-applications-17
+    "Bolton":        "https://www.planningpa.bolton.gov.uk/online-applications-17",
+    "Oldham":        "https://planning.oldham.gov.uk/online-applications",
+    "Tameside":      "https://publicaccess.tameside.gov.uk/online-applications",
+    "Trafford":      "https://publicaccess.trafford.gov.uk/online-applications",
+    "Wigan":         "https://planning.wigan.gov.uk/online-applications",
+    # Rochdale migrated away from Idox in December 2025 — skipping
+    # Stockport uses own portal, not standard Idox — skipping
+    # Bury — URL to be verified
+
+    # ── MERSEYSIDE & CHESHIRE ──────────────────────────────
+    "Wirral":        "https://planning.wirral.gov.uk/online-applications",
+    "Knowsley":      "https://pa.knowsley.gov.uk/online-applications",
+    "Warrington":    "https://planning.warrington.gov.uk/online-applications",
+    "Cheshire East": "https://pa.cheshireeast.gov.uk/online-applications",
+    "Blackburn":     "https://www.blackburn.gov.uk/planning/planning-register",
+    # Liverpool — uses custom portal, not standard Idox — skipping
+
+    # ── WEST YORKSHIRE ─────────────────────────────────────
+    "Leeds":         "https://publicaccess.leeds.gov.uk/online-applications",
+    "Bradford":      "https://planning.bradford.gov.uk/online-applications",
+    "Calderdale":    "https://portal.calderdale.gov.uk/online-applications",
+    "Wakefield":     "https://planning.wakefield.gov.uk/online-applications",
+    "Kirklees":      "https://www.kirklees.gov.uk/planning-portal/online-applications",
+
+    # ── SOUTH YORKSHIRE ────────────────────────────────────
+    "Sheffield":     "https://planningapps.sheffield.gov.uk/online-applications",
+    "Rotherham":     "https://apps.rotherham.gov.uk/online-applications",
+    "Barnsley":      "https://www.barnsleyplanningportal.co.uk/online-applications",
+    "Doncaster":     "https://www.doncaster.gov.uk/planningonline/online-applications",
+
+    # ── EAST MIDLANDS ──────────────────────────────────────
+    "Leicester":     "https://planning.leicester.gov.uk/online-applications",
+    "Nottingham":    "https://publicaccess.nottinghamcity.gov.uk/online-applications",
+    "Peterborough":  "https://planningpa.peterborough.gov.uk/online-applications",
+    "Northampton":   "https://planning.northampton.gov.uk/online-applications",
+    "Lincoln":       "https://planning.lincoln.gov.uk/online-applications",
+
+    # ── WEST MIDLANDS ──────────────────────────────────────
+    "Wolverhampton": "https://www.wolverhampton.gov.uk/planning-portal/online-applications",
+    "Walsall":       "https://planning.walsall.gov.uk/online-applications",
+    "Solihull":      "https://eplanning.solihull.gov.uk/online-applications",
+
+    # ── SOUTH WEST ─────────────────────────────────────────
+    "Bristol":       "https://planningonline.bristol.gov.uk/online-applications",
+    "Plymouth":      "https://planning.plymouth.gov.uk/online-applications",
+    "Exeter":        "https://publicaccess.exeter.gov.uk/online-applications",
+    "Cornwall":      "https://planning.cornwall.gov.uk/online-applications",
+    "Swindon":       "https://pa.swindon.gov.uk/online-applications",
+    "Bath":          "https://www.bathnes.gov.uk/planning-portal/online-applications",
+    "Gloucester":    "https://gloucester.gov.uk/planning-portal/online-applications",
+    "Cheltenham":    "https://planning.cheltenham.gov.uk/online-applications",
+    "Taunton":       "https://www.somersetwestandtaunton.gov.uk/planning/planning-portal",
+
+    # ── SOUTH EAST ─────────────────────────────────────────
+    "Portsmouth":    "https://publicaccess.portsmouth.gov.uk/online-applications",
+    "Southampton":   "https://planningpublicaccess.southampton.gov.uk/online-applications",
+    "Reading":       "https://planning.reading.gov.uk/online-applications",
+    "Oxford":        "https://public.oxford.gov.uk/online-applications",
+    "Milton Keynes": "https://publicaccess.milton-keynes.gov.uk/online-applications",
+    "Medway":        "https://planning.medway.gov.uk/online-applications",
+    "Canterbury":    "https://publicaccess.canterbury.gov.uk/online-applications",
+    "Brighton":      "https://planningapps.brighton-hove.gov.uk/online-applications",
+    "Guildford":     "https://www.guildford.gov.uk/planning-portal/online-applications",
+    "Maidstone":     "https://pa.maidstone.gov.uk/online-applications",
+    "Thanet":        "https://planning.thanet.gov.uk/online-applications",
+
+    # ── EAST OF ENGLAND ────────────────────────────────────
+    "Norfolk":       "https://idoxpa.north-norfolk.gov.uk/online-applications",
+    "Norwich":       "https://planningonline.norwich.gov.uk/online-applications",
+    "Ipswich":       "https://publicaccess.ipswich.gov.uk/online-applications",
+    "Cambridge":     "https://applications.greatercambridgeplanning.org/online-applications",
+    "Luton":         "https://planning.luton.gov.uk/online-applications",
+    "Chelmsford":    "https://publicaccess.chelmsford.gov.uk/online-applications",
+    "Colchester":    "https://www.colchester.gov.uk/planning-portal/online-applications",
+    "Southend":      "https://publicaccess.southend-on-sea.gov.uk/online-applications",
+
+    # ── LONDON ─────────────────────────────────────────────
+    "Westminster":   "https://idoxpa.westminster.gov.uk/online-applications",
+    "Southwark":     "https://planning.southwark.gov.uk/online-applications",
+    "Ealing":        "https://pam.ealing.gov.uk/online-applications",
+    "Lewisham":      "https://planning.lewisham.gov.uk/online-applications",
+    "Lambeth":       "https://planning.lambeth.gov.uk/online-applications",
+    "Croydon":       "https://publicaccess.croydon.gov.uk/online-applications",
+    "Barnet":        "https://publicaccess.barnet.gov.uk/online-applications",
+    "Enfield":       "https://planningandbuildingcontrol.enfield.gov.uk/online-applications",
+    "Brent":         "https://pa.brent.gov.uk/online-applications",
+    "Tower Hamlets": "https://development.towerhamlets.gov.uk/online-applications",
+    "Greenwich":     "https://planning.royalgreenwich.gov.uk/online-applications",
+    "Waltham Forest":"https://planning.walthamforest.gov.uk/online-applications",
+    "Wandsworth":    "https://planning.wandsworth.gov.uk/online-applications",
+    "Haringey":      "https://www.planningservices.haringey.gov.uk/online-applications",
+    "Hounslow":      "https://www.hounslow.gov.uk/planning-portal/online-applications",
+    "Sutton":        "https://planningregister.sutton.gov.uk/online-applications",
+    "Kingston":      "https://publicaccess.kingston.gov.uk/online-applications",
+    "Merton":        "https://planning.merton.gov.uk/online-applications",
+    "Richmond":      "https://www.richmond.gov.uk/planning-portal/online-applications",
+    "Bromley":       "https://searchapps.bromley.gov.uk/online-applications",
+    "Hillingdon":    "https://pa.hillingdon.gov.uk/online-applications",
+
+    # ── NORTH EAST ─────────────────────────────────────────
+    "Newcastle":     "https://publicaccess.newcastle.gov.uk/online-applications",
+    "Gateshead":     "https://publicaccess.gateshead.gov.uk/online-applications",
+    "Sunderland":    "https://publicaccess.sunderland.gov.uk/online-applications",
+    "Durham":        "https://publicaccess.durham.gov.uk/online-applications",
+    "Middlesbrough": "https://planning.middlesbrough.gov.uk/online-applications",
+
+    # ── NORTH WEST ─────────────────────────────────────────
+    "Preston":       "https://planning.preston.gov.uk/online-applications",
+    "Blackpool":     "https://www.blackpool.gov.uk/planning-portal/online-applications",
+    "Lancaster":     "https://pa.lancaster.gov.uk/online-applications",
+    "Carlisle":      "https://planning.carlisle.gov.uk/online-applications",
 }
 
 RETAIL_KEYWORDS = ["Retail", "Class E", "shop", "supermarket", "convenience", "comparison"]
@@ -129,10 +159,17 @@ HEADERS_HTTP = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
+        "Chrome/124.0.0.0 Safari/537.36"
     ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
     "Accept-Language": "en-GB,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "DNT": "1",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
 }
@@ -759,11 +796,44 @@ def _do_post(sess, base_url, keyword, date_from, date_to, with_refused=True):
         log(f"  ❌ POST failed: {e}", 1)
         return [], None
 
-    time.sleep(1)
-    rr = safe_get(sess, f"{base_url}/advancedSearchResults.do?action=firstPage")
-    if not rr:
-        return [], None
+    time.sleep(2)  # give server time to store session
 
+    # Some portals redirect the POST straight to results — check first
+    if pr.url and "Results" in pr.url and pr.status_code == 200:
+        items = collect_pages(sess, base_url, pr, keyword)
+        if items:
+            return items, form
+
+    # Standard: GET the results page — try two common URL variants
+    result_urls = [
+        f"{base_url}/advancedSearchResults.do?action=firstPage",
+        f"{base_url}/searchResults.do?action=firstPage",
+    ]
+    for rurl in result_urls:
+        rr = safe_get(sess, rurl)
+        if not rr:
+            continue
+        # Check if we got results or bounced back to search form
+        soup_title = ""
+        try:
+            from bs4 import BeautifulSoup as _BS
+            soup_title = _BS(rr.text, "html.parser").title.get_text(strip=True) if _BS(rr.text,"html.parser").title else ""
+        except Exception:
+            pass
+        if "Results" in soup_title or "result" in rr.url.lower():
+            items = collect_pages(sess, base_url, rr, keyword)
+            if items:
+                return items, form
+        elif "Applications Search" not in soup_title:
+            # Unknown page — still try to parse
+            items = collect_pages(sess, base_url, rr, keyword)
+            if items:
+                return items, form
+
+    # Fallback: just try the first URL and return whatever we get
+    rr = safe_get(sess, result_urls[0])
+    if not rr:
+        return [], form
     items = collect_pages(sess, base_url, rr, keyword)
     return items, form
 
@@ -1154,7 +1224,7 @@ def run():
     date_from = (today - timedelta(weeks=WEEKS_TO_SCRAPE)).strftime("%d/%m/%Y")
 
     print("=" * 60)
-    print(f"🏗️  MAPlanning Retail Lead Engine v16")
+    print(f"🏗️  MAPlanning Retail Lead Engine v17")
     print(f"📅  {today.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"📆  {date_from} → {date_to}  ({WEEKS_TO_SCRAPE} weeks)")
     print(f"🏛️  {len(COUNCILS)} councils configured")
