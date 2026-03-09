@@ -27,134 +27,110 @@ WEEKS_TO_SCRAPE = 12
 # Each URL is tested at startup — dead ones are skipped automatically.
 # All use the standard Idox /search.do?action=advanced endpoint.
 COUNCILS = {
-    # ── GREATER MANCHESTER ─────────────────────────────────
-    # HTTP 500 is intermittent load — preflight will retry
-    "Manchester":    "https://pa.manchester.gov.uk/online-applications",
-    "Salford":       "https://publicaccess.salford.gov.uk/online-applications",
-    "Tameside":      "https://publicaccess.tameside.gov.uk/online-applications",
-    "Trafford":      "https://publicaccess.trafford.gov.uk/online-applications",
-    "Oldham":        "https://planning.oldham.gov.uk/online-applications",
-    "Bolton":        "https://www.planningpa.bolton.gov.uk/online-applications-17",
-    "Wigan":         "https://planning.wigan.gov.uk/online-applications",
-    "Bury":          "https://planning.bury.gov.uk/online-applications",
+    # ══ Confirmed ✅ working from GitHub Actions (US IP) ═══
+    # West Yorkshire
+    "Leeds":          "https://publicaccess.leeds.gov.uk/online-applications",
+    "Wakefield":      "https://planning.wakefield.gov.uk/online-applications",
+    "Bradford":       "https://planning.bradford.gov.uk/online-applications",
+    "Calderdale":     "https://publicaccess.calderdale.gov.uk/online-applications",
 
-    # ── MERSEYSIDE & CHESHIRE ──────────────────────────────
-    "Wirral":        "https://planning.wirral.gov.uk/online-applications",
-    "Knowsley":      "https://publicaccess.knowsley.gov.uk/online-applications",
-    "Warrington":    "https://planning.warrington.gov.uk/online-applications",
-    "Cheshire East": "https://pa.cheshireeast.gov.uk/online-applications",
-    "Blackburn":     "https://idox.blackburn.gov.uk/online-applications",
-    "St Helens":     "https://pa.sthelens.gov.uk/online-applications",
+    # Greater Manchester (those that pass)
+    "Wigan":          "https://planning.wigan.gov.uk/online-applications",
 
-    # ── WEST YORKSHIRE ─────────────────────────────────────
-    "Leeds":         "https://publicaccess.leeds.gov.uk/online-applications",
-    "Bradford":      "https://planning.bradford.gov.uk/online-applications",
-    "Calderdale":    "https://publicaccess.calderdale.gov.uk/online-applications",
-    "Wakefield":     "https://planning.wakefield.gov.uk/online-applications",
-    "Kirklees":      "https://www.kirklees.gov.uk/beta/planning-and-building-control/planning-applications/search-planning-applications",
+    # East Midlands
+    "Lincoln":        "https://planning.lincoln.gov.uk/online-applications",
+    "Leicester":      "https://planning.leicester.gov.uk/online-applications",
+    "Derby":          "https://eplanning.derby.gov.uk/online-applications",
+    "Nottingham":     "https://publicaccess.nottinghamcity.gov.uk/online-applications",
 
-    # ── SOUTH YORKSHIRE ────────────────────────────────────
-    "Sheffield":     "https://planningapps.sheffield.gov.uk/online-applications",
-    "Rotherham":     "https://planningonline.rotherham.gov.uk/online-applications",
-    "Doncaster":     "https://planning.doncaster.gov.uk/online-applications",
+    # West Midlands
+    "Walsall":        "https://planning.walsall.gov.uk/online-applications",
+    "Wolverhampton":  "https://planningonline.wolverhampton.gov.uk/online-applications",
+    "Solihull":       "https://publicaccess.solihull.gov.uk/online-applications",
+    "Coventry":       "https://planningpublicaccess.coventry.gov.uk/online-applications",
 
-    # ── EAST MIDLANDS ──────────────────────────────────────
-    "Leicester":     "https://planning.leicester.gov.uk/online-applications",
-    "Nottingham":    "https://publicaccess.nottinghamcity.gov.uk/online-applications",
-    "Peterborough":  "https://planning.peterborough.gov.uk/online-applications",
-    "Derby":         "https://eplanning.derby.gov.uk/online-applications",
-    "Lincoln":       "https://planning.lincoln.gov.uk/online-applications",
-    "Northampton":   "https://publicaccess.northampton.gov.uk/online-applications",
+    # South West
+    "Bristol":        "https://planningonline.bristol.gov.uk/online-applications",
+    "Plymouth":       "https://planning.plymouth.gov.uk/online-applications",
+    "Exeter":         "https://publicaccess.exeter.gov.uk/online-applications",
+    "Cornwall":       "https://planning.cornwall.gov.uk/online-applications",
+    "Cheltenham":     "https://publicaccess.cheltenham.gov.uk/online-applications",
+    "Gloucester":     "https://publicaccess.gloucester.gov.uk/online-applications",
+    "Swindon":        "https://pa.swindon.gov.uk/online-applications",
 
-    # ── WEST MIDLANDS ──────────────────────────────────────
-    "Solihull":      "https://publicaccess.solihull.gov.uk/online-applications",
-    "Wolverhampton": "https://planningonline.wolverhampton.gov.uk/online-applications",
-    "Walsall":       "https://planning.walsall.gov.uk/online-applications",
+    # South East
+    "Portsmouth":     "https://publicaccess.portsmouth.gov.uk/online-applications",
+    "Southampton":    "https://planningpublicaccess.southampton.gov.uk/online-applications",
+    "Reading":        "https://planning.reading.gov.uk/online-applications",
+    "Oxford":         "https://public.oxford.gov.uk/online-applications",
+    "Canterbury":     "https://publicaccess.canterbury.gov.uk/online-applications",
+    "Medway":         "https://planning.medway.gov.uk/online-applications",
+    "Maidstone":      "https://pa.maidstone.gov.uk/online-applications",
+    "Thanet":         "https://planning.thanet.gov.uk/online-applications",
+    "Guildford":      "https://planningpublicaccess.guildford.gov.uk/online-applications",
+    "Milton Keynes":  "https://pa.milton-keynes.gov.uk/online-applications",
 
-    # ── SOUTH WEST ─────────────────────────────────────────
-    "Bristol":       "https://planningonline.bristol.gov.uk/online-applications",
-    "Plymouth":      "https://planning.plymouth.gov.uk/online-applications",
-    "Exeter":        "https://publicaccess.exeter.gov.uk/online-applications",
-    "Cornwall":      "https://planning.cornwall.gov.uk/online-applications",
-    "Swindon":       "https://pa.swindon.gov.uk/online-applications",
-    "Bath":          "https://www.bathnes.gov.uk/services/planning-and-building-control/planning-applications/search-planning-applications",
-    "Gloucester":    "https://publicaccess.gloucester.gov.uk/online-applications",
-    "Cheltenham":    "https://publicaccess.cheltenham.gov.uk/online-applications",
-    "Taunton":       "https://www.somersetwestandtaunton.gov.uk/planning/search-planning-applications",
+    # East of England
+    "Norfolk":        "https://idoxpa.north-norfolk.gov.uk/online-applications",
+    "Norwich":        "https://planning.norwich.gov.uk/online-applications",
+    "Ipswich":        "https://publicaccess.ipswich.gov.uk/online-applications",
+    "Cambridge":      "https://applications.greatercambridgeplanning.org/online-applications",
+    "Chelmsford":     "https://publicaccess.chelmsford.gov.uk/online-applications",
+    "Colchester":     "https://planningpa.colchester.gov.uk/online-applications",
+    "Luton":          "https://planning.luton.gov.uk/online-applications",
 
-    # ── SOUTH EAST ─────────────────────────────────────────
-    "Portsmouth":    "https://publicaccess.portsmouth.gov.uk/online-applications",
-    "Southampton":   "https://planningpublicaccess.southampton.gov.uk/online-applications",
-    "Reading":       "https://planning.reading.gov.uk/online-applications",
-    "Oxford":        "https://public.oxford.gov.uk/online-applications",
-    "Milton Keynes": "https://pa.milton-keynes.gov.uk/online-applications",
-    "Medway":        "https://planning.medway.gov.uk/online-applications",
-    "Canterbury":    "https://publicaccess.canterbury.gov.uk/online-applications",
-    "Maidstone":     "https://www.maidstone.gov.uk/planning-portal/search-for-planning-applications",
-    "Guildford":     "https://planningpublicaccess.guildford.gov.uk/online-applications",
-    "Thanet":        "https://planning.thanet.gov.uk/online-applications",
-    "Winchester":    "https://planningapps.winchester.gov.uk/online-applications",
-    "Eastbourne":    "https://planning.eastbourne.gov.uk/online-applications",
+    # London
+    "Ealing":         "https://pam.ealing.gov.uk/online-applications",
+    "Lewisham":       "https://planning.lewisham.gov.uk/online-applications",
+    "Lambeth":        "https://planning.lambeth.gov.uk/online-applications",
+    "Croydon":        "https://publicaccess.croydon.gov.uk/online-applications",
+    "Brent":          "https://pa.brent.gov.uk/online-applications",
+    "Tower Hamlets":  "https://development.towerhamlets.gov.uk/online-applications",
+    "Greenwich":      "https://planning.royalgreenwich.gov.uk/online-applications",
+    "Hackney":        "https://planningapps.hackney.gov.uk/online-applications",
+    "Newham":         "https://pa.newham.gov.uk/online-applications",
+    "Wandsworth":     "https://planning.wandsworth.gov.uk/online-applications",
+    "Waltham Forest": "https://planning.walthamforest.gov.uk/online-applications",
+    "Hillingdon":     "https://pa.hillingdon.gov.uk/online-applications",
+    "Bromley":        "https://searchapps.bromley.gov.uk/online-applications",
+    "Harrow":         "https://planningsearch.harrow.gov.uk/online-applications",
+    "Havering":       "https://development.havering.gov.uk/online-applications",
+    "Redbridge":      "https://publicaccess.redbridge.gov.uk/online-applications",
+    "Bexley":         "https://pa.bexley.gov.uk/online-applications",
+    "Merton":         "https://planning.merton.gov.uk/online-applications",
+    "Kingston":       "https://publicaccess.kingston.gov.uk/online-applications",
+    "Richmond":       "https://www2.richmond.gov.uk/online-applications",
+    "Sutton":         "https://planningregister.sutton.gov.uk/online-applications",
+    "Hounslow":       "https://planningpa.hounslow.gov.uk/online-applications",
+    "Westminster":    "https://idoxpa.westminster.gov.uk/online-applications",
+    "Camden":         "https://camdocs.camden.gov.uk/online-applications",
+    "Southwark":      "https://planning.southwark.gov.uk/online-applications",
+    "Barnet":         "https://publicaccess.barnet.gov.uk/online-applications",
+    "Enfield":        "https://planningandbuildingcontrol.enfield.gov.uk/online-applications",
+    "Haringey":       "https://www.planningservices.haringey.gov.uk/online-applications",
 
-    # ── EAST OF ENGLAND ────────────────────────────────────
-    "Norfolk":       "https://idoxpa.north-norfolk.gov.uk/online-applications",
-    "Norwich":       "https://planning.norwich.gov.uk/online-applications",
-    "Ipswich":       "https://publicaccess.ipswich.gov.uk/online-applications",
-    "Cambridge":     "https://applications.greatercambridgeplanning.org/online-applications",
-    "Luton":         "https://planning.luton.gov.uk/online-applications",
-    "Chelmsford":    "https://publicaccess.chelmsford.gov.uk/online-applications",
-    "Colchester":    "https://planningpa.colchester.gov.uk/online-applications",
-    "Southend":      "https://publicaccess.southend-on-sea.gov.uk/online-applications",
-    "Tendring":      "https://idox.tendringdc.gov.uk/online-applications",
+    # North East
+    "Newcastle":      "https://publicaccess.newcastle.gov.uk/online-applications",
+    "Gateshead":      "https://publicaccess.gateshead.gov.uk/online-applications",
+    "Sunderland":     "https://publicaccess.sunderland.gov.uk/online-applications",
+    "Durham":         "https://publicaccess.durham.gov.uk/online-applications",
 
-    # ── LONDON ─────────────────────────────────────────────
-    "Westminster":   "https://idoxpa.westminster.gov.uk/online-applications",
-    "Camden":        "https://camdocs.camden.gov.uk/online-applications",
-    "Southwark":     "https://planning.southwark.gov.uk/online-applications",
-    "Ealing":        "https://pam.ealing.gov.uk/online-applications",
-    "Islington":     "https://www.islington.gov.uk/planning/planning-applications/search-planning-applications",
-    "Lewisham":      "https://planning.lewisham.gov.uk/online-applications",
-    "Lambeth":       "https://planning.lambeth.gov.uk/online-applications",
-    "Croydon":       "https://publicaccess.croydon.gov.uk/online-applications",
-    "Barnet":        "https://publicaccess.barnet.gov.uk/online-applications",
-    "Enfield":       "https://planningandbuildingcontrol.enfield.gov.uk/online-applications",
-    "Brent":         "https://pa.brent.gov.uk/online-applications",
-    "Tower Hamlets": "https://development.towerhamlets.gov.uk/online-applications",
-    "Greenwich":     "https://planning.royalgreenwich.gov.uk/online-applications",
-    "Hackney":       "https://planningapps.hackney.gov.uk/online-applications",
-    "Newham":        "https://pa.newham.gov.uk/online-applications",
-    "Haringey":      "https://www.planningservices.haringey.gov.uk/online-applications",
-    "Wandsworth":    "https://planning.wandsworth.gov.uk/online-applications",
-    "Waltham Forest":"https://planning.walthamforest.gov.uk/online-applications",
-    "Hounslow":      "https://planningpa.hounslow.gov.uk/online-applications",
-    "Sutton":        "https://planningregister.sutton.gov.uk/online-applications",
-    "Kingston":      "https://publicaccess.kingston.gov.uk/online-applications",
-    "Merton":        "https://planning.merton.gov.uk/online-applications",
-    "Richmond":      "https://www2.richmond.gov.uk/online-applications",
-    "Bromley":       "https://searchapps.bromley.gov.uk/online-applications",
-    "Hillingdon":    "https://pa.hillingdon.gov.uk/online-applications",
-    "Harrow":        "https://planningsearch.harrow.gov.uk/online-applications",
-    "Redbridge":     "https://publicaccess.redbridge.gov.uk/online-applications",
-    "Havering":      "https://development.havering.gov.uk/online-applications",
-    "Bexley":        "https://pa.bexley.gov.uk/online-applications",
-    "Kensington":    "https://www.rbkc.gov.uk/planning/searches/default.aspx",
+    # South Yorkshire
+    "Sheffield":      "https://planningapps.sheffield.gov.uk/online-applications",
+    "Rotherham":      "https://planningonline.rotherham.gov.uk/online-applications",
+    "Doncaster":      "https://www.doncaster.gov.uk/services/planning/planning-applications",
 
-    # ── NORTH EAST ─────────────────────────────────────────
-    "Newcastle":     "https://publicaccess.newcastle.gov.uk/online-applications",
-    "Gateshead":     "https://publicaccess.gateshead.gov.uk/online-applications",
-    "Sunderland":    "https://publicaccess.sunderland.gov.uk/online-applications",
-    "North Tyneside":"https://idoxpublicaccess.northtyneside.gov.uk/online-applications",
-    "South Tyneside":"https://www.southtyneside.gov.uk/article/37030/Search-for-planning-applications",
-    "Durham":        "https://publicaccess.durham.gov.uk/online-applications",
-    "Middlesbrough": "https://planning.middlesbrough.gov.uk/online-applications",
-    "Sunderland":    "https://publicaccess.sunderland.gov.uk/online-applications",
+    # North West (those reachable from US)
+    "Knowsley":       "https://publicaccess.knowsley.gov.uk/online-applications",
+    "Wirral":         "https://planning.wirral.gov.uk/online-applications",
+    "Cheshire East":  "https://pa.cheshireeast.gov.uk/online-applications",
+    "Lancaster":      "https://planning.lancaster.gov.uk/online-applications",
+    "Blackpool":      "https://idox.blackpool.gov.uk/online-applications",
+    "Preston":        "https://planning.preston.gov.uk/online-applications",
 
-    # ── NORTH WEST ─────────────────────────────────────────
-    "Preston":       "https://www.preston.gov.uk/planning-portal/online-applications",
-    "Lancaster":     "https://planning.lancaster.gov.uk/online-applications",
-    "Blackpool":     "https://idox.blackpool.gov.uk/online-applications",
-    "Carlisle":      "https://planning.carlisle.gov.uk/online-applications",
-    "Cumbria":       "https://planning.cumbria.gov.uk/online-applications",
+    # ══ Persistent HTTP 500/connection from GitHub US IPs ══
+    # Run these manually from Colab where UK routing works:
+    # Manchester, Salford, Tameside, Trafford, Oldham, Bolton, Warrington
 }
 
 RETAIL_KEYWORDS = ["Retail", "Class E", "shop", "supermarket", "convenience", "comparison"]
@@ -240,92 +216,52 @@ def safe_get(sess, url, timeout=25, retries=2):
 # ════════════════════════════════════════════════════════════
 # PRE-FLIGHT: test every council URL before scraping
 # ════════════════════════════════════════════════════════════
-def _check_one_url(name, base_url, timeout=35):
-    """
-    Test a single council URL.  Returns ("ok"|"dead"|"retry", reason).
-    Tries up to 3 times for transient 5xx errors.
-    """
-    test_url = f"{base_url}/search.do?action=advanced&searchType=Application"
-    sess = new_session()
-    last_status = None
-
-    for attempt in range(3):
-        try:
-            r = sess.get(test_url, timeout=timeout, allow_redirects=True, verify=False)
-            last_status = r.status_code
-
-            if r.status_code == 200:
-                has_form = bool(BeautifulSoup(r.text, "html.parser").find("form"))
-                if has_form:
-                    return "ok", None
-                # 200 but not Idox — no point retrying
-                return "dead", "200 but no Idox form"
-
-            if r.status_code in (500, 502, 503, 504):
-                # Server-side error — retry after brief pause
-                if attempt < 2:
-                    log(f"  ⏳ {name:22s} HTTP {r.status_code} — retry {attempt+2}/3 in 15s…", 0)
-                    time.sleep(15)
-                    continue
-                return "dead", f"HTTP {r.status_code} (3 attempts)"
-
-            if r.status_code == 403:
-                return "dead", "HTTP 403 (bot-blocked)"
-            if r.status_code == 406:
-                return "dead", "HTTP 406 (Not Acceptable)"
-            if r.status_code == 404:
-                return "dead", "HTTP 404 (wrong URL path)"
-
-            return "dead", f"HTTP {r.status_code}"
-
-        except requests.exceptions.ConnectionError as e:
-            reason = "DNS failure — URL doesn't exist" if _is_dns_error(e) else "Connection error"
-            if "DNS" in reason or attempt == 2:
-                return "dead", reason
-            # Connection error (timeout/reset) — retry
-            log(f"  ⏳ {name:22s} {reason} — retry {attempt+2}/3 in 10s…", 0)
-            time.sleep(10)
-            continue
-
-        except requests.exceptions.Timeout:
-            if attempt < 2:
-                log(f"  ⏳ {name:22s} Timeout — retry {attempt+2}/3 with longer timeout…", 0)
-                timeout = 55   # increase timeout on retry
-                time.sleep(5)
-                continue
-            return "dead", "Timeout (55s, 3 attempts)"
-
-        except Exception as e:
-            return "dead", f"{type(e).__name__}: {str(e)[:40]}"
-
-    return "dead", f"HTTP {last_status} after 3 attempts"
-
-
 def preflight_check(councils):
     """
-    Tests every council URL.  Returns (live_dict, dead_dict).
-    Retries transient 500/502/503/timeout errors up to 3 times.
+    Single-attempt check per council — no retries.
+    Any error = skip. Fast (~0.5s per council).
     """
-    log("\n🔍 PRE-FLIGHT URL CHECK")
+    import concurrent.futures
+    log("\n🔍 PRE-FLIGHT  (single-attempt, parallel)")
     log("=" * 60)
     live = {}
     dead = {}
 
-    for name, base_url in councils.items():
-        status, reason = _check_one_url(name, base_url)
-        if status == "ok":
-            live[name] = base_url
-            log(f"  ✅ {name:22s} OK")
-        else:
-            dead[name] = reason
-            emoji = "❌" if "DNS" in reason or "404" in reason else "⚠️ "
-            log(f"  {emoji} {name:22s} {reason}")
+    def _test(name_url):
+        name, base_url = name_url
+        test_url = f"{base_url}/search.do?action=advanced&searchType=Application"
+        try:
+            sess = new_session()
+            r = sess.get(test_url, timeout=15, allow_redirects=True, verify=False)
+            if r.status_code == 200:
+                has_form = bool(BeautifulSoup(r.text, "html.parser").find("form"))
+                return name, base_url, "ok" if has_form else "no_form", r.status_code
+            return name, base_url, "bad_status", r.status_code
+        except requests.exceptions.ConnectionError as e:
+            reason = "DNS" if _is_dns_error(e) else "ConnErr"
+            return name, base_url, reason, 0
+        except requests.exceptions.Timeout:
+            return name, base_url, "Timeout", 0
+        except Exception as e:
+            return name, base_url, f"Err:{type(e).__name__}", 0
+
+    # Run checks in parallel — max 8 threads to avoid hammering
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+        futures = {ex.submit(_test, item): item[0] for item in councils.items()}
+        for fut in concurrent.futures.as_completed(futures):
+            name, base_url, status, code = fut.result()
+            if status == "ok":
+                live[name] = base_url
+                log(f"  ✅ {name:22s} OK")
+            else:
+                reason = f"HTTP {code}" if code else status
+                dead[name] = reason
+                emoji = "❌" if status in ("DNS","no_form") else "⚠️ "
+                log(f"  {emoji} {name:22s} {reason} — skipping")
 
     log(f"\n  ✅ {len(live)} live   ❌ {len(dead)} unreachable")
-    if dead:
-        log(f"  Skipping: {', '.join(dead.keys())}")
     log("=" * 60)
-    return live, dead
+    return dict(sorted(live.items())), dead
 
 # ════════════════════════════════════════════════════════════
 # GOOGLE SHEETS — with retry + in-memory dedup cache
@@ -924,12 +860,15 @@ def search_one_keyword(sess, base_url, keyword, date_from, date_to):
     return []
 
 
-def collect_pages(sess, base_url, first_resp, keyword):
-    all_items = []
-    page_num  = 1
-    resp      = first_resp
+MAX_PAGES = 30   # hard cap — no portal has 30 pages of retail refusals
 
-    while True:
+def collect_pages(sess, base_url, first_resp, keyword):
+    all_items    = []
+    seen_keyvals = set()   # ← dedup guard: breaks the infinite loop
+    page_num     = 1
+    resp         = first_resp
+
+    while page_num <= MAX_PAGES:
         soup  = BeautifulSoup(resp.text, "html.parser")
         title = soup.title.get_text().strip() if soup.title else ""
         items = parse_results(soup)
@@ -937,23 +876,41 @@ def collect_pages(sess, base_url, first_resp, keyword):
         if not items:
             if page_num == 1:
                 log(f"  ⚠️  0 results — title='{title}'", 1)
-                # Print a snippet to help diagnose silent failures
                 snippet = soup.get_text(separator=" ", strip=True)[:250]
                 log(f"  Page text: {snippet}", 1)
             else:
-                log(f"  ✅ {len(all_items)} total", 1)
+                log(f"  ✅ {len(all_items)} total across {page_num-1} pages", 1)
             break
 
-        log(f"  📄 Page {page_num}: {len(items)} results", 1)
-        for r in items:
-            log(f"    • {r['ref'][:38]} — {r['desc'][:55]}", 1)
-        all_items.extend(items)
+        # Duplicate-page detection: if ALL keyVals on this page are ones
+        # we have already seen, the server is cycling — stop immediately.
+        page_kvs = [i["keyVal"] for i in items]
+        new_kvs  = [kv for kv in page_kvs if kv not in seen_keyvals]
 
+        if not new_kvs and page_num > 1:
+            log(f"  🔄 Page {page_num} is a duplicate of a previous page — stopping pagination", 1)
+            log(f"  ✅ {len(all_items)} total (cycle detected)", 1)
+            break
+
+        # Even if some are new, only add genuinely new ones
+        for item in items:
+            if item["keyVal"] not in seen_keyvals:
+                seen_keyvals.add(item["keyVal"])
+                all_items.append(item)
+
+        log(f"  📄 Page {page_num}: {len(items)} results ({len(new_kvs)} new)", 1)
+
+        if page_num == MAX_PAGES:
+            log(f"  ⚠️  Hit {MAX_PAGES}-page cap — stopping", 1)
+            break
+
+        # Check for next-page link
         has_next = bool(
             soup.find("a", string=re.compile(r"Next", re.I)) or
             soup.find("a", href=re.compile(r"searchCriteria\.page="))
         )
         if not has_next:
+            log(f"  ✅ {len(all_items)} total", 1)
             break
 
         page_num += 1
@@ -961,7 +918,7 @@ def collect_pages(sess, base_url, first_resp, keyword):
         resp = safe_get(sess, next_url)
         if not resp:
             break
-        time.sleep(1)
+        time.sleep(0.5)   # reduced from 1s
 
     log(f"  → {len(all_items)} for '{keyword}'", 1)
     return all_items
@@ -1247,7 +1204,7 @@ def scrape_council(council, base_url, date_from, date_to):
             for i in new:
                 i["keyword"] = kw
             all_items.extend(new)
-            time.sleep(2)
+            time.sleep(1)
         except Exception as e:
             log(f"  ❌ Keyword '{kw}': {e}")
 
@@ -1290,38 +1247,35 @@ def run():
         print("❌ Sheets connection failed — stopping"); return
     load_existing_refs()
 
-    # ── Step 2: pre-flight — only scrape working URLs ────────
-    live_councils, dead_councils = preflight_check(COUNCILS)
+    # ── Step 2: pre-flight — fast parallel check ───────────
+    live_councils, _dead = preflight_check(COUNCILS)
     if not live_councils:
         print("❌ No reachable councils — check network"); return
 
     # ── Step 3: scrape every live council ───────────────────
+    import random
     grand   = []
     summary = {}
     failed  = []
+    total   = len(live_councils)
 
     for idx, (name, url) in enumerate(live_councils.items()):
         log(f"\n{'━'*60}")
-        log(f"Council {idx+1}/{len(live_councils)}: {name}")
+        log(f"Council {idx+1}/{total}: {name}")
         log(f"{'━'*60}")
-        leads = []
-        for attempt in range(2):
-            try:
-                if attempt > 0:
-                    log(f"🔄 Retry attempt 2...")
-                    time.sleep(15)
-                leads = scrape_council(name, url, date_from, date_to)
-                break
-            except Exception as e:
-                log(f"❌ {name} attempt {attempt+1}: {e}")
-                if attempt == 1:
-                    failed.append(name)
-        summary[name] = len(leads)
-        grand.extend(leads)
-        remaining = len(live_councils) - idx - 1
-        if remaining > 0:
-            log(f"\n⏸️  10s pause | {remaining} remaining | {len(grand)} leads so far")
-            time.sleep(10)
+        try:
+            leads = scrape_council(name, url, date_from, date_to)
+            summary[name] = len(leads)
+            grand.extend(leads)
+        except Exception as e:
+            log(f"❌ {name}: {str(e)[:80]}")
+            failed.append(name)
+            summary[name] = 0
+
+        if idx < total - 1:
+            pause = random.uniform(2, 4)
+            log(f"⏸️  {pause:.1f}s | {total-idx-1} remaining | {len(grand)} leads")
+            time.sleep(pause)
 
     grand.sort(key=lambda x: x["score"], reverse=True)
 
@@ -1330,15 +1284,15 @@ def run():
     print(f"📊 FINAL RESULTS")
     print(f"{'='*60}")
 
-    print(f"\n  Live councils scraped ({len(live_councils)}):")
+    print(f"\n  Councils scraped ({total}):")
     for c, n in summary.items():
         mark = "❌ FAILED" if c in failed else f"🏆 {n} leads" if n else "  0"
         print(f"    {c:22s}: {mark}")
 
-    if dead_councils:
-        print(f"\n  Skipped ({len(dead_councils)} unreachable):")
-        for c, reason in dead_councils.items():
-            print(f"    {c:22s}: {reason}")
+    if failed:
+        print(f"\n  Failed during scrape ({len(failed)}):")
+        for fc in failed:
+            print(f"    {fc}")
 
     print(f"\n  {'─'*36}")
     print(f"  {'TOTAL QUALIFIED':22s}: {len(grand)} leads")
