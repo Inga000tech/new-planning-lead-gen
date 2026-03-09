@@ -369,7 +369,7 @@ def write_lead(lead):
     row_data = [
         lead["council"], lead["ref"], lead["addr"], lead["desc"],
         lead["app_type"], lead["applicant"], lead["agent"],
-        lead["date_rec"], lead["date_dec"], "Refused",
+        lead["date_rec"], lead["date_dec"], lead.get("decision", "REFUSED"),
         lead["triggers"], lead["score"], lead["keyword"],
         lead["url"], lead["doc_url"],
         datetime.now().strftime("%Y-%m-%d %H:%M"), "",
@@ -386,6 +386,36 @@ def write_lead(lead):
     try:
         sheets_retry(lambda: ws.append_row(row_data))
         _existing_refs.add(lead["ref"])  # update in-memory cache
+
+        # Colour the row: green = confirmed refusal, red = approved/unclear
+        try:
+            all_rows   = sheets_retry(lambda: ws.get_all_values())
+            row_num    = len(all_rows)   # the row we just appended
+            dec        = lead.get("decision", "").upper()
+            is_refused = dec == "REFUSED" or dec.startswith("REFUSED")
+            r, g, b    = (0.85, 0.93, 0.85) if is_refused else (0.96, 0.80, 0.80)
+            rng        = f"A{row_num}:X{row_num}"
+            fmt_body   = {
+                "requests": [{
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": ws.id,
+                            "startRowIndex": row_num - 1,
+                            "endRowIndex":   row_num,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "backgroundColor": {"red": r, "green": g, "blue": b}
+                            }
+                        },
+                        "fields": "userEnteredFormat.backgroundColor",
+                    }
+                }]
+            }
+            sheets_retry(lambda: ws.spreadsheet.batch_update(fmt_body))
+        except Exception:
+            pass  # formatting is cosmetic — never block a save
+
         log(f"  💾 SAVED: {lead['ref']} | {lead['triggers'][:50]}")
         return True
     except Exception as e:
@@ -810,22 +840,20 @@ def _do_post(sess, base_url, keyword, date_from, date_to, with_refused=True):
             soup_title = _BS(rr.text, "html.parser").title.get_text(strip=True) if _BS(rr.text,"html.parser").title else ""
         except Exception:
             pass
-        if "Results" in soup_title or "result" in rr.url.lower():
+        is_results_page = (
+            "Results" in soup_title or
+            "result" in rr.url.lower() or
+            ("Applications Search" not in soup_title and soup_title)
+        )
+        if is_results_page:
             items = collect_pages(sess, base_url, rr, keyword)
             if items:
                 return items, form
-        elif "Applications Search" not in soup_title:
-            # Unknown page — still try to parse
-            items = collect_pages(sess, base_url, rr, keyword)
-            if items:
-                return items, form
+            # Got a results page but 0 items — no point trying second URL
+            break
 
-    # Fallback: just try the first URL and return whatever we get
-    rr = safe_get(sess, result_urls[0])
-    if not rr:
-        return [], form
-    items = collect_pages(sess, base_url, rr, keyword)
-    return items, form
+    # Both result URLs returned 0 / bounced to search — nothing here
+    return [], form
 
 
 def search_one_keyword(sess, base_url, keyword, date_from, date_to):
@@ -976,25 +1004,136 @@ def parse_results(soup):
 # ════════════════════════════════════════════════════════════
 # APPLICATION DETAILS (summary + details tabs)
 # ════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
+# DECISION CLASSIFIER — shared constants
+# ════════════════════════════════════════════════════════════
+_REFUSAL_WORDS  = ("refus",)
+_APPROVAL_WORDS = (
+    "approv", "grant", "permit", "lawful", "certif",
+    "prior approval", "no objection", "withdrawn",
+    "invalid", "discharge", "not required", "consent",
+    "conditions",
+)
+# Decision values that Idox portals return — used in pass 3 scan
+_KNOWN_DECISIONS = [
+    "refused", "refuse", "refusal",
+    "approve with conditions", "approved with conditions",
+    "approved subject to conditions",
+    "granted", "approved", "grant",
+    "prior approval required", "prior approval not required",
+    "withdrawn", "invalid", "lawful development certificate",
+    "no prior approval required",
+]
+
+def _parse_decision_from_soup(soup):
+    """
+    Extract the Decision field value from an Idox summary page.
+
+    Returns the actual decision text e.g. "Refused", "Approve with Conditions".
+    NEVER returns "Decided" (that is the Status field, not the Decision field).
+
+    Three passes — same logic proven in cleanup_sheet.py:
+      1. <tr><th>Decision</th><td>value</td>
+      2. <dt>Decision</dt><dd>value</dd>
+      3. Full-page text scan for known decision strings
+    """
+    # Pass 1: table row with exact "decision" header
+    for row in soup.find_all("tr"):
+        th = row.find("th")
+        td = row.find("td")
+        if not th or not td:
+            continue
+        label = th.get_text(strip=True).lower().rstrip(":").strip()
+        if label == "decision":                 # EXACT match — "status" is excluded
+            val = td.get_text(strip=True)
+            if val and val.lower() not in ("", "decided", "-", "n/a", "none", "pending"):
+                return val
+
+    # Pass 2: definition list <dt>/<dd>
+    for dt in soup.find_all("dt"):
+        label = dt.get_text(strip=True).lower().rstrip(":").strip()
+        if label == "decision":
+            dd = dt.find_next_sibling("dd")
+            if dd:
+                val = dd.get_text(strip=True)
+                if val and val.lower() not in ("", "decided", "-", "n/a", "pending"):
+                    return val
+
+    # Pass 3: scan every line for known decision strings (case-insensitive)
+    page_lines = soup.get_text(separator="\n", strip=True).split("\n")
+    for line in page_lines:
+        stripped = line.strip().lower()
+        if stripped in _KNOWN_DECISIONS:
+            return line.strip()
+
+    return ""
+
+
+def _normalise_decision(raw):
+    """
+    Convert raw portal decision text to canonical status string.
+    Returns "REFUSED", "APPROVED — <detail>", or the raw text verbatim.
+    """
+    if not raw:
+        return ""
+    r = raw.lower()
+    if any(w in r for w in _REFUSAL_WORDS):
+        return "REFUSED"
+    if any(w in r for w in _APPROVAL_WORDS):
+        return f"APPROVED — {raw}"
+    return raw
+
+
 def get_details(sess, base_url, key_val):
+    """
+    Fetch summary + details tabs for one application.
+    Returns dict with: decision, proposal, address, date_dec, date_rec,
+                       applicant, agent, app_type
+    """
     d = {}
     r = safe_get(sess, f"{base_url}/applicationDetails.do?activeTab=summary&keyVal={key_val}")
     if r and r.status_code == 200:
         soup = BeautifulSoup(r.text, "html.parser")
+
+        # ── Decision: use 3-pass parser — never picks up "Status: Decided" ──
+        raw_decision = _parse_decision_from_soup(soup)
+        d["decision"] = raw_decision
+
+        # ── Other fields from table rows ────────────────────────────────────
         for row in soup.select("tr"):
             th = row.find("th")
             td = row.find("td")
             if not th or not td:
                 continue
-            label = th.get_text(strip=True).lower().strip()
+            label = th.get_text(strip=True).lower().strip().rstrip(":")
             value = td.get_text(strip=True)
-            if   label == "proposal":              d["proposal"]  = value
-            elif label == "address":               d["address"]   = value
-            elif label == "decision":              d["decision"]  = value
-            elif label == "decision issued date":  d["date_dec"]  = value
-            elif label == "application validated": d["date_rec"]  = value
-            elif label == "date received":         d.setdefault("date_rec", value)
-        log(f"  Decision='{d.get('decision','?')}' Decided='{d.get('date_dec','?')}'", 2)
+            if   label == "proposal":                                d["proposal"] = value
+            elif label == "address":                                 d["address"]  = value
+            elif label in ("decision issued date", "decision date",
+                           "date of decision", "date decision issued"): d["date_dec"] = value
+            elif label in ("application validated", "date validated",
+                           "date received", "received"):
+                d.setdefault("date_rec", value)
+
+        log(f"  Decision='{d.get('decision','?')}' | Date='{d.get('date_dec','?')}'", 2)
+
+    # ── Details tab: applicant, agent, app type ──────────────────────────────
+    time.sleep(0.5)
+    r2 = safe_get(sess, f"{base_url}/applicationDetails.do?activeTab=details&keyVal={key_val}")
+    if r2 and r2.status_code == 200:
+        soup2 = BeautifulSoup(r2.text, "html.parser")
+        for row in soup2.select("tr"):
+            th = row.find("th")
+            td = row.find("td")
+            if not th or not td:
+                continue
+            label = th.get_text(strip=True).lower().strip().rstrip(":")
+            value = td.get_text(strip=True)
+            if "applicant name" in label and not d.get("applicant"): d["applicant"] = value
+            if "agent name"     in label and not d.get("agent"):     d["agent"]     = value
+            if label == "agent"           and not d.get("agent"):     d["agent"]     = value
+            if "application type" in label and not d.get("app_type"): d["app_type"] = value
+    return d
     time.sleep(0.5)
     r2 = safe_get(sess, f"{base_url}/applicationDetails.do?activeTab=details&keyVal={key_val}")
     if r2 and r2.status_code == 200:
@@ -1044,32 +1183,87 @@ def _abs_url(root, base_url, href):
         return root + href
     return base_url.rstrip("/") + "/" + href.lstrip("/")
 
-def _resolve_viewdoc(sess, url, base_url):
+def _resolve_viewdoc(sess, url, base_url, soup_of_doc_tab=None):
     """
-    Follow a viewDocument.do URL to get the real file URL.
-    Idox typically does a 302 → /files/DC_WKSSDec/.../xxx.pdf
-    Returns (resolved_url, response_or_None).
-    resolved_url is a direct PDF path if redirect happened,
-    otherwise the original viewDocument.do URL.
+    Convert a session-gated viewDocument.do URL into a permanent direct file URL.
+
+    Idox portals serve decision PDFs in two ways:
+      A) 302 redirect  → /files/DC_WKSSDec/yyyy/mm/dd/filename.pdf  (permanent, no session)
+      B) Direct stream → 200 with PDF bytes, URL stays as viewDocument.do  (session required)
+
+    For case B, "Document Unavailable" appears when the URL is clicked from
+    email or Sheets because there is no active session cookie.
+
+    We try four strategies to escape case B:
+      1. r.history — any redirect step pointing to /files/
+      2. X-Accel-Redirect / X-Sendfile proxy headers
+      3. Scan documents tab HTML for /files/ hrefs on the same page
+      4. Check onclick / data-* attributes on doc tab elements
+
+    If none work: store the portal application URL (always public) as fallback.
+    The PDF bytes from the session fetch are still passed to scan_pdf regardless.
     """
+    import re as _re
+    p    = urlparse(base_url)
+    root = f"{p.scheme}://{p.netloc}"
+
     if "viewDocument.do" not in url and "downloadDocument" not in url:
         return url, None
+
     try:
         r = sess.get(url, allow_redirects=True, timeout=40,
-                     headers={"Accept": "application/pdf,*/*",
-                              "Referer": base_url})
-        # If there was a redirect to a direct file
-        if r.url != url:
-            return r.url, r
-        # If no redirect but content is PDF, the server streams directly.
-        # Return the original URL — we still have the content.
+                     headers={"Accept": "application/pdf,*/*", "Referer": base_url})
+
+        # Strategy 1: redirect chain — any step landing on /files/
+        for resp in list(r.history) + [r]:
+            u = getattr(resp, "url", "")
+            if "/files/" in u:
+                direct = root + u if u.startswith("/") else u
+                log(f"  ✅ Direct URL via redirect: …{direct[-60:]}", 2)
+                return direct, r
+
+        # Strategy 2: reverse-proxy sendfile headers
+        for hdr in ("X-Accel-Redirect", "X-Sendfile", "X-Reproxy-URL"):
+            val = r.headers.get(hdr, "").strip()
+            if val:
+                direct = root + val if val.startswith("/") else val
+                log(f"  ✅ Direct URL via {hdr}: …{direct[-60:]}", 2)
+                return direct, r
+
+        # Strategy 3: scan documents tab HTML for /files/ hrefs
+        if soup_of_doc_tab:
+            for a in soup_of_doc_tab.find_all("a", href=True):
+                h = a["href"]
+                if "/files/" in h:
+                    direct = root + h if h.startswith("/") else h
+                    log(f"  ✅ Direct /files/ link in HTML: …{direct[-60:]}", 2)
+                    return direct, r
+
+        # Strategy 4: onclick / data attributes in doc tab
+        if soup_of_doc_tab:
+            for tag in soup_of_doc_tab.find_all(True):
+                for attr in ("onclick", "data-url", "data-href", "data-src"):
+                    val = tag.get(attr, "")
+                    if "/files/" in val:
+                        m = _re.search(r"(/[^\s'\"]+/files/[^\s'\"]+)", val)
+                        if m:
+                            path = m.group(1)
+                            direct = root + path if path.startswith("/") else path
+                            log(f"  ✅ Direct URL in {attr}: …{direct[-60:]}", 2)
+                            return direct, r
+
+        # No permanent URL found — we still have the PDF bytes from this session
         ct = r.headers.get("Content-Type", "").lower()
-        if "pdf" in ct or len(r.content) > 1000:
-            return url, r   # URL won't work without session, but content is here
+        if "pdf" in ct or r.content[:4] == b"%PDF":
+            log(f"  ⚠️  Session-only URL (bytes available for scan, link may expire)", 2)
+            return url, r
+
         return url, r
+
     except Exception as e:
-        log(f"  ⚠️  viewDoc resolve error: {e}", 2)
+        log(f"  ⚠️  viewDoc error: {e}", 2)
         return url, None
+
 
 def find_decision_doc(sess, base_url, key_val):
     """
@@ -1166,7 +1360,7 @@ def find_decision_doc(sess, base_url, key_val):
     log(f"  → Best: score={best['score']} | {best['url'][-65:]}", 2)
 
     # Resolve viewDocument.do to direct URL (fixes "Document Unavailable")
-    resolved_url, prefetched = _resolve_viewdoc(sess, best["url"], base_url)
+    resolved_url, prefetched = _resolve_viewdoc(sess, best["url"], base_url, soup_of_doc_tab=soup)
     if resolved_url != best["url"]:
         log(f"  ✅ Resolved to direct URL: …{resolved_url[-65:]}", 2)
 
@@ -1293,13 +1487,7 @@ def process_app(sess, base_url, council, item):
 
     # Pre-filter 1: skip clearly non-refused decisions immediately
     decision_raw = det.get("decision", "").lower().strip()
-    _skip_words = (
-        "grant", "approv", "prior approval not required", "prior approval required",
-        "no objection", "permit", "lawful", "certif",
-        "withdrawn", "invalid", "not required", "discharge",
-        "prior approval", "no prior approval",
-    )
-    if decision_raw and any(w in decision_raw for w in _skip_words):
+    if decision_raw and any(w in decision_raw for w in _APPROVAL_WORDS):
         log(f"  ⏭️  Decision='{det.get('decision','')}' — not a refusal, skip", 2)
         return None
 
@@ -1335,6 +1523,10 @@ def process_app(sess, base_url, council, item):
     sc   = score_lead(desc, triggers)
     log(f"  Score: {sc}/100")
 
+    # Normalise decision to canonical status using shared helper
+    raw_dec        = det.get("decision", "").strip()
+    decision_status = _normalise_decision(raw_dec) if raw_dec else "REFUSED"
+
     lead = {
         "council":   council,
         "ref":       ref,
@@ -1345,6 +1537,7 @@ def process_app(sess, base_url, council, item):
         "agent":     det.get("agent",     ""),
         "date_rec":  det.get("date_rec",  ""),
         "date_dec":  det.get("date_dec",  ""),
+        "decision":  decision_status,
         "triggers":  ", ".join(triggers),
         "score":     sc,
         "keyword":   item["keyword"],
