@@ -133,14 +133,72 @@ COUNCILS = {
     # Manchester, Salford, Tameside, Trafford, Oldham, Bolton, Warrington
 }
 
-RETAIL_KEYWORDS = ["Retail", "Class E", "shop", "supermarket", "convenience", "comparison"]
+# ── Search keywords — what goes into the portal's description field ──────────
+# Goal: catch any Class E change-of-use refused for out-of-centre location.
+# Mark's insight: the best leads are small change-of-use applications (easy to
+# win on appeal) where refusal was "lack of evidence" / sequential test failure.
+# NOT just supermarkets — gyms, salons, cafes, offices all fall under Class E.
+RETAIL_KEYWORDS = [
+    "Class E",          # the main use class — catches gyms, shops, offices, cafes
+    "change of use",    # most of these apps say "change of use to Class E"
+    "shop",             # traditional retail
+    "retail",           # retail-specific applications
+    "supermarket",      # large format food retail
+    "convenience",      # convenience stores
+    "gym",              # health & fitness — Class E(d)
+    "hair",             # hair & beauty salons — Class E
+    "beauty",           # beauty salons — Class E
+    "café", "cafe",     # cafes / restaurants — Class E
+    "restaurant",       # restaurants — Class E
+    "hot food",         # hot food takeaway — often Class E boundary cases
+    "office",           # offices — Class E(g)
+    "sui generis",      # use that doesn't fit a class — often sequential test needed
+]
 
+# ── PDF trigger words — searched inside the Decision Notice PDF ──────────────
+# A lead only qualifies if the PDF contains at least one of these.
+# Mark's priority tags (confirmed from real qualified leads):
+#   "out of centre" / "out-of-centre"  — location issue, classic appeal ground
+#   "edge of centre"                   — borderline location, often winnable
+#   "sequential test"                  — applicant didn't prove no sequentially
+#                                        preferable sites exist
+#   "sequential approach"              — same issue, different wording
+#   "retail impact assessment"         — impact not properly assessed
+#   "lack of evidence"                 — MOST WINNABLE: council refused because
+#                                        applicant didn't submit a document.
+#                                        Easy fix on appeal = high value lead.
 PDF_TRIGGERS = [
-    "sequential test", "sequential approach", "sequential",
-    "retail impact", "impact assessment", "town centre impact",
-    "primary shopping", "primary retail",
-    "out-of-centre", "out of centre",
-    "main town centre", "nppf",
+    # Location / sequential test (Mark's top picks)
+    "out of centre",
+    "out-of-centre",
+    "edge of centre",
+    "edge-of-centre",
+    "sequential test",
+    "sequential approach",
+    "sequential assessment",
+    "no sequential",
+    # Impact assessment
+    "retail impact assessment",
+    "retail impact",
+    "impact assessment",
+    "town centre impact",
+    # NPPF / policy framework
+    "nppf",
+    "main town centre",
+    "primary shopping",
+    "primary retail",
+    "town centre first",
+    # Winnable "lack of evidence" refusals (Mark's insight)
+    "lack of evidence",
+    "insufficient evidence",
+    "no evidence",
+    "failure to demonstrate",
+    "failed to demonstrate",
+    "not demonstrated",
+    "no information",
+    "no assessment",
+    "has not been submitted",
+    "not been provided",
 ]
 
 HEADERS_HTTP = {
@@ -426,24 +484,78 @@ def write_lead(lead):
 # SCORING
 # ════════════════════════════════════════════════════════════
 def score_lead(desc, triggers):
-    s  = 50
+    """
+    Score a qualified lead 0-100 based on how likely it is to be a
+    winnable appeal case that Mark can act on.
+
+    Scoring philosophy (from Mark's feedback):
+      - "Lack of evidence" refusals = highest value (easy to win on appeal)
+      - Out-of-centre + sequential test failure = strong signal
+      - Class E change of use = the target application type
+      - Small single-use apps are MORE winnable than large retail parks
+      - sqm size is NOT a quality signal — small salons/gyms score just as well
+    """
+    s  = 40   # base — lower than before, room to reward the right signals
     d  = desc.lower()
     tw = " ".join(triggers).lower()
-    for w, p in [
-        ("supermarket", 20), ("food store", 20), ("retail park", 15),
-        ("out of centre", 15), ("out-of-centre", 15), ("class e", 10), ("major", 10),
-    ]:
-        if w in d: s += p
-    sqm = re.findall(r'(\d[\d,]*)\s*(?:sq\.?\s*m|sqm|square metre)', d)
-    if sqm:
-        try:
-            n = int(sqm[0].replace(",", ""))
-            s += 30 if n >= 2500 else 20 if n >= 1000 else 10 if n >= 500 else 0
-        except Exception:
-            pass
-    for w, p in [("sequential test", 15), ("retail impact", 15), ("impact assessment", 10)]:
-        if w in tw: s += p
-    return min(s, 100)
+
+    # ── Trigger word quality (from PDF) — highest weight ─────────────────
+    # "Lack of evidence" = most winnable refusal type
+    for w in ("lack of evidence", "insufficient evidence", "no evidence",
+              "failure to demonstrate", "failed to demonstrate",
+              "not demonstrated", "no information", "no assessment",
+              "has not been submitted", "not been provided"):
+        if w in tw:
+            s += 25   # massive bonus — Mark explicitly called these out
+            break     # only count once
+
+    # Sequential test failure = core appeal ground
+    if "sequential test"     in tw: s += 20
+    if "sequential approach" in tw: s += 15
+    if "sequential assessment" in tw: s += 15
+    if "no sequential"       in tw: s += 15
+
+    # Out-of-centre location
+    if "out of centre"  in tw or "out-of-centre"  in tw: s += 15
+    if "edge of centre" in tw or "edge-of-centre" in tw: s += 10
+
+    # Retail impact not assessed
+    if "retail impact assessment" in tw: s += 15
+    if "retail impact"            in tw: s += 10
+    if "impact assessment"        in tw: s += 8
+
+    # ── Description signals ───────────────────────────────────────────────
+    # Class E change of use = exactly what Mark wants
+    if "class e"        in d: s += 10
+    if "change of use"  in d: s += 8
+    if "use class e"    in d: s += 10
+
+    # Specific Class E sub-types Mark mentioned as good leads
+    for w in ("gym", "hair", "beauty", "salon", "café", "cafe",
+              "restaurant", "hot food", "takeaway", "office"):
+        if w in d:
+            s += 5
+            break
+
+    # Traditional retail — still valuable but not prioritised over small CoU
+    if "supermarket"  in d: s += 8
+    if "food store"   in d: s += 8
+    if "retail park"  in d: s += 5
+    if "convenience"  in d: s += 5
+    if "shop"         in d: s += 3
+
+    # ── Penalise applications that are NOT what Mark wants ───────────────
+    # "Discharge of condition" / "approval of reserved matters" — Mark
+    # explicitly said these are NOT good leads (they're post-approval admin,
+    # not the project approval itself)
+    for bad in ("discharge of condition", "discharge of planning condition",
+                "reserved matters", "approval of details", "condition discharge",
+                "details reserved by condition", "approval of reserved"):
+        if bad in d:
+            s -= 60   # hard penalty — always results in score below 10 minimum
+            break
+
+    return max(10, min(s, 100))
 
 # ════════════════════════════════════════════════════════════
 # SALES INTELLIGENCE ENRICHMENT
@@ -1138,7 +1250,7 @@ def get_details(sess, base_url, key_val):
                            "date received", "received"):
                 d.setdefault("date_rec", value)
 
-        log(f"  Decision='{d.get('decision','?')}' | Date='{d.get('date_dec','?')}'", 2)
+        log(f"  Decision='{d.get('decision','?')}' | AppType='{d.get('app_type','?')}' | Date='{d.get('date_dec','?')}'", 2)
 
     # ── Details tab: applicant, agent, app type ──────────────────────────────
     time.sleep(0.5)
@@ -1507,6 +1619,31 @@ def process_app(sess, base_url, council, item):
     log(f"  {item['desc'][:90]}")
 
     det = get_details(sess, base_url, kv)
+
+    # Pre-filter 0: skip post-approval admin applications immediately
+    # These are NOT project approvals — they're condition discharge / reserved matters.
+    # Mark confirmed: "discharge of condition" and "approval of details reserved by
+    # condition" are not leads, even if refused.
+    desc_lower = item["desc"].lower()
+    _not_leads = (
+        "discharge of condition",
+        "discharge of planning condition",
+        "reserved matters",
+        "approval of details",
+        "approval of reserved",
+        "details reserved by condition",
+        "condition discharge",
+        "prior approval",          # permitted development prior approval — not a lead
+        "lawful development",      # LDC application — not a lead
+        "certificate of lawful",
+        "advertisement consent",   # signage only — not a lead
+        "listed building consent", # heritage only — not a lead
+        "tree preservation",       # TPO application — not a lead
+        "hedgerow removal",
+    )
+    if any(bad in desc_lower for bad in _not_leads):
+        log(f"  ⏭️  Not a project approval (post-approval admin / non-planning) — skip", 2)
+        return None
 
     # Pre-filter 1: skip clearly non-refused decisions immediately
     decision_raw = det.get("decision", "").lower().strip()
