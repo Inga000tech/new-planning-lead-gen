@@ -124,7 +124,7 @@ COUNCILS = {
     # ══ North East ══════════════════════════════════════
     "Sunderland":        "https://online-applications.sunderland.gov.uk/online-applications",  # v17 URL fix
     "Durham":            "https://publicaccess.durham.gov.uk/online-applications",
-    "North Tyneside":    "https://idox.northtyneside.gov.uk/online-applications",       # new v18
+    "North Tyneside":    "https://idoxpublicaccess.northtyneside.gov.uk/online-applications",  # v19 URL fix
     # Newcastle/Gateshead — migrated away from Idox publicaccess subdomain;
     # current portal URL unconfirmed; remove until verified.
 
@@ -136,10 +136,10 @@ COUNCILS = {
     # ══ North West ══════════════════════════════════════
     "Knowsley":          "https://publicaccess.knowsley.gov.uk/online-applications",   # ConnErr GH→Colab
     "Wirral":            "https://planning.wirral.gov.uk/online-applications",         # ConnErr GH→Colab
-    "Cheshire East":     "https://pa.cheshireeast.gov.uk/online-applications",
+    # Preston: uses selfservice.preston.gov.uk ASP.NET portal — NOT Idox, removed v19
+    # Cheshire East: uses planning.cheshireeast.gov.uk/AdvancedSearch.aspx — NOT Idox, removed v19
     "Lancaster":         "https://planning.lancaster.gov.uk/online-applications",      # ConnErr GH→Colab
-    "Blackpool":         "https://idoxpa.blackpool.gov.uk/online-applications",        # v17 URL fix
-    "Preston":           "https://www.preston.gov.uk/planning",
+    "Blackpool":         "https://idoxpa.blackpool.gov.uk/online-applications",        # confirmed live v18
 
     # ══ Blocked from GitHub US IPs — run manually from Colab ═══════════
     # Manchester, Salford, Tameside, Trafford, Oldham, Bolton, Warrington
@@ -206,8 +206,26 @@ RETAIL_KEYWORDS = [
 #                                        applicant didn't submit a document.
 #                                        Easy fix on appeal = high value lead.
 PDF_TRIGGERS = [
-    # ── Location / sequential test ────────────────────────────────────────
-    # Mark's confirmed top picks — out-of-centre = classic appeal ground
+    # ════════════════════════════════════════════════════════════════════
+    # MARK'S CONFIRMED GOOD SIGNALS ONLY — v19
+    #
+    # REMOVED (were causing noise — these appear as boilerplate in every
+    # retail decision notice, not actual refusal grounds):
+    #   ✗ "nppf" / "national planning policy framework"
+    #   ✗ "main town centre" / "main town centre use"
+    #   ✗ "primary shopping area" / "primary shopping" / "primary retail"
+    #   ✗ "town centre first" / "town centre boundary"
+    #   ✗ "impact assessment" (generic — keep only "retail impact assessment")
+    #   ✗ "retail impact" (too broad alone)
+    #   ✗ "vitality and viability" (appears in every retail refusal boilerplate)
+    #   ✗ Use class references (class e(a), etc — not refusal grounds)
+    #   ✗ "out of town" / "not in a town centre" (weaker variants)
+    #
+    # KEPT (specific refusal grounds Mark identified as winnable):
+    # ════════════════════════════════════════════════════════════════════
+
+    # ── 1. OUT-OF-CENTRE LOCATION ────────────────────────────────────────
+    # Core appeal ground. Mark's explicit #1 signal.
     "out of centre",
     "out-of-centre",
     "outside the town centre",
@@ -215,57 +233,25 @@ PDF_TRIGGERS = [
     "edge of centre",
     "edge-of-centre",
     "edge of the town centre",
-    "out of town",
-    "out-of-town",
-    "not within the town centre",
-    "not in a town centre",
 
-    # ── Sequential test failure ──────────────────────────────────────────
-    # NPPF paragraph 90/87 — must prove no sequentially preferable sites
+    # ── 2. SEQUENTIAL TEST FAILURE ───────────────────────────────────────
+    # Applicant failed to prove no sequentially preferable town centre
+    # sites exist. Always a core planning appeal ground.
     "sequential test",
     "sequential approach",
     "sequential assessment",
     "sequential preference",
     "sequential search",
-    "no sequential",
-    "fail the sequential",
-    "failed the sequential",
-    "fails the sequential",
     "sequential step",
+    "no sequential",
+    "fails the sequential",
+    "failed the sequential",
+    "fail the sequential",
     "sequentially preferable",
-    "sequentially preferred",
 
-    # ── Retail impact ────────────────────────────────────────────────────
-    "retail impact assessment",
-    "retail impact",
-    "retail impact study",
-    "impact assessment",
-    "impact on the vitality",
-    "impact on vitality",
-    "impact on the viability",
-    "impact on viability",
-    "town centre impact",
-    "adverse impact on the town centre",
-    "impact on the primary",
-
-    # ── NPPF / planning policy framework ────────────────────────────────
-    "nppf",
-    "national planning policy framework",
-    "main town centre",
-    "main town centre use",
-    "primary shopping area",
-    "primary shopping",
-    "primary retail",
-    "primary frontage",
-    "defined town centre",
-    "town centre first",
-    "town centre boundary",
-    "shopping frontage",
-    "retail frontage",
-
-    # ── Winnable "lack of evidence" refusals ────────────────────────────
-    # Mark's key insight: council refused because applicant didn't submit
-    # a document — easy fix on appeal = highest value leads
+    # ── 3. LACK OF EVIDENCE / FAILURE TO DEMONSTRATE ────────────────────
+    # MARK'S MOST WINNABLE CATEGORY: council refused because applicant
+    # simply didn't submit a required document. Easy fix on appeal.
     "lack of evidence",
     "insufficient evidence",
     "no evidence",
@@ -278,38 +264,39 @@ PDF_TRIGGERS = [
     "has not demonstrated",
     "cannot demonstrate",
     "unable to demonstrate",
-    "no information",
+    "no information provided",
     "no assessment",
-    "no retail impact",
     "has not been submitted",
+    "not been submitted",
     "not been provided",
     "has not been provided",
     "was not submitted",
-    "not been submitted",
     "absence of",
     "in the absence of",
 
-    # ── Vitality & viability ─────────────────────────────────────────────
-    "vitality and viability",
-    "vitality or viability",
+    # ── 4. RETAIL IMPACT ASSESSMENT ──────────────────────────────────────
+    # Specific: applicant failed to provide a Retail Impact Assessment.
+    # "retail impact" alone NOT included — too often just a policy mention.
+    "retail impact assessment",
+    "retail impact study",
+
+    # ── 5. SPECIFIC TOWN CENTRE HARM FINDINGS ────────────────────────────
+    # Only the specific harm findings — NOT generic "vitality and viability"
+    # which appears in every retail refusal as boilerplate policy citation.
+    "harm to the vitality and viability",
     "harm to the vitality",
-    "harm to vitality",
-    "harmful to the vitality",
+    "adverse impact on the vitality",
     "undermine the vitality",
     "prejudice the vitality",
-    "health of the town centre",
-
-    # ── Use class references in decision notices ─────────────────────────
-    "class e use",
-    "class e(a)",
-    "class e(b)",
-    "class e(c)",
-    "class e(d)",
-    "class e(f)",
-    "class e(g)",
-    "sui generis use",
-    "use class order",
 ]
+
+# ── Minimum lead score to write to sheet ─────────────────────────────────────
+# Safety net: any lead scoring below this is discarded even if it matched a
+# trigger. Prevents edge-case noise. Genuine leads score 60+ because they
+# need at least one strong trigger (evidence +25, sequential +20,
+# out-of-centre +15) plus a use class description signal (+8).
+# Score-48 rows (old "only NPPF" junk) can no longer reach this threshold.
+MIN_LEAD_SCORE = 60
 
 HEADERS_HTTP = {
     "User-Agent": (
@@ -1860,6 +1847,14 @@ def process_app(sess, base_url, council, item):
     sc   = score_lead(desc, triggers)
     log(f"  Score: {sc}/100")
 
+    # ── Minimum score gate ────────────────────────────────────────────────
+    # Discard low-quality matches that only matched generic policy phrases.
+    # Genuine winnable leads always score 60+ (evidence or sequential trigger
+    # alone pushes base 40 + desc signal well above this threshold).
+    if sc < MIN_LEAD_SCORE:
+        log(f"  ⏭️  Score {sc} < {MIN_LEAD_SCORE} minimum — skipping (not a qualified lead)")
+        return None
+
     # Normalise decision to canonical status using shared helper
     raw_dec        = det.get("decision", "").strip()
     decision_status = _normalise_decision(raw_dec) if raw_dec else "REFUSED"
@@ -1937,7 +1932,7 @@ def run():
     date_from = (today - timedelta(weeks=WEEKS_TO_SCRAPE)).strftime("%d/%m/%Y")
 
     print("=" * 60)
-    print(f"🏗️  MAPlanning Retail Lead Engine v18")
+    print(f"🏗️  MAPlanning Retail Lead Engine v19")
     print(f"📅  {today.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"📆  {date_from} → {date_to}  ({WEEKS_TO_SCRAPE} weeks)")
     print(f"🏛️  {len(COUNCILS)} councils configured")
