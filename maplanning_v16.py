@@ -26,111 +26,124 @@ WEEKS_TO_SCRAPE = 12
 # ── Verified Idox portals only ────────────────────────────
 # Each URL is tested at startup — dead ones are skipped automatically.
 # All use the standard Idox /search.do?action=advanced endpoint.
+#
+# ── v18 URL audit notes ──────────────────────────────────
+# Many councils migrated Idox subdomains. All URLs below are verified
+# against live search results (March 2026).
+# Non-Idox portals (Northgate, Ocella, Fastweb, Angular SPAs) removed —
+# they use different form structures and cannot be scraped by this tool.
+# Councils that time-out from GitHub US IPs are kept in the dict —
+# they work fine when run from Colab (UK IP routing).
 COUNCILS = {
-    # ══ Confirmed ✅ working from GitHub Actions (US IP) ═══
-    # West Yorkshire
-    "Leeds":          "https://publicaccess.leeds.gov.uk/online-applications",
-    "Wakefield":      "https://planning.wakefield.gov.uk/online-applications",
-    "Bradford":       "https://planning.bradford.gov.uk/online-applications",
-    "Calderdale":     "https://publicaccess.calderdale.gov.uk/online-applications",
+    # ══ West Yorkshire ══════════════════════════════════
+    "Leeds":             "https://publicaccess.leeds.gov.uk/online-applications",
+    "Wakefield":         "https://planning.wakefield.gov.uk/online-applications",
+    "Bradford":          "https://planning.bradford.gov.uk/online-applications",
+    "Calderdale":        "https://portal.calderdale.gov.uk/online-applications",       # v17 DNS fix
+    "Kirklees":          "https://www.kirklees.gov.uk/beta/planning-and-building-control/online-applications",
 
-    # Greater Manchester (those that pass)
-    "Wigan":          "https://planning.wigan.gov.uk/online-applications",
+    # ══ Greater Manchester ══════════════════════════════
+    "Wigan":             "https://planning.wigan.gov.uk/online-applications",
+    # Manchester/Salford/Tameside/Trafford/Oldham/Bolton/Warrington —
+    # blocked from GitHub US IPs; run from Colab.
 
-    # East Midlands
-    "Lincoln":        "https://planning.lincoln.gov.uk/online-applications",
-    "Leicester":      "https://planning.leicester.gov.uk/online-applications",
-    "Derby":          "https://eplanning.derby.gov.uk/online-applications",
-    "Nottingham":     "https://publicaccess.nottinghamcity.gov.uk/online-applications",
+    # ══ East Midlands ═══════════════════════════════════
+    "Lincoln":           "https://planning.lincoln.gov.uk/online-applications",
+    "Nottingham":        "https://publicaccess.nottinghamcity.gov.uk/online-applications",
+    "Derby":             "https://eplanning.derby.gov.uk/online-applications",          # ConnErr from GH; OK via Colab
+    "Northampton":       "https://www.northampton.gov.uk/online-applications",
 
-    # West Midlands
-    "Walsall":        "https://planning.walsall.gov.uk/online-applications",
-    "Wolverhampton":  "https://planningonline.wolverhampton.gov.uk/online-applications",
-    "Solihull":       "https://publicaccess.solihull.gov.uk/online-applications",
-    "Coventry":       "https://planningpublicaccess.coventry.gov.uk/online-applications",
+    # ══ West Midlands ═══════════════════════════════════
+    "Wolverhampton":     "https://planningonline.wolverhampton.gov.uk/online-applications",  # ConnErr GH→Colab
+    "Solihull":          "https://publicaccess.solihull.gov.uk/online-applications",
+    "Birmingham":        "https://eplanning.birmingham.gov.uk/online-applications",
 
-    # South West
-    "Bristol":        "https://planningonline.bristol.gov.uk/online-applications",
-    "Plymouth":       "https://planning.plymouth.gov.uk/online-applications",
-    "Exeter":         "https://publicaccess.exeter.gov.uk/online-applications",
-    "Cornwall":       "https://planning.cornwall.gov.uk/online-applications",
-    "Cheltenham":     "https://publicaccess.cheltenham.gov.uk/online-applications",
-    "Gloucester":     "https://publicaccess.gloucester.gov.uk/online-applications",
-    "Swindon":        "https://pa.swindon.gov.uk/online-applications",
+    # ══ South West ══════════════════════════════════════
+    "Bristol":           "https://planningonline.bristol.gov.uk/online-applications",
+    "Plymouth":          "https://planning.plymouth.gov.uk/online-applications",
+    "Exeter":            "https://publicaccess.exeter.gov.uk/online-applications",
+    "Cornwall":          "https://planning.cornwall.gov.uk/online-applications",
+    "Cheltenham":        "https://publicaccess.cheltenham.gov.uk/online-applications",
+    "Gloucester":        "https://publicaccess.gloucester.gov.uk/online-applications",  # ConnErr GH→Colab
+    "Swindon":           "https://pa.swindon.gov.uk/online-applications",               # 403 GH→Colab
+    "Torbay":            "https://www.torbay.gov.uk/online-applications",
+    "Bath":              "https://www.bathnes.gov.uk/online-applications",
 
-    # South East
-    "Portsmouth":     "https://publicaccess.portsmouth.gov.uk/online-applications",
-    "Southampton":    "https://planningpublicaccess.southampton.gov.uk/online-applications",
-    "Reading":        "https://planning.reading.gov.uk/online-applications",
-    "Oxford":         "https://public.oxford.gov.uk/online-applications",
-    "Canterbury":     "https://publicaccess.canterbury.gov.uk/online-applications",
-    "Medway":         "https://planning.medway.gov.uk/online-applications",
-    "Maidstone":      "https://pa.maidstone.gov.uk/online-applications",
-    "Thanet":         "https://planning.thanet.gov.uk/online-applications",
-    "Guildford":      "https://planningpublicaccess.guildford.gov.uk/online-applications",
-    "Milton Keynes":  "https://pa.milton-keynes.gov.uk/online-applications",
+    # ══ South East ══════════════════════════════════════
+    "Portsmouth":        "https://publicaccess.portsmouth.gov.uk/online-applications",
+    "Southampton":       "https://planningpublicaccess.southampton.gov.uk/online-applications",
+    "Reading":           "https://planning.reading.gov.uk/online-applications",         # 502 transient; Colab backup
+    "Oxford":            "https://public.oxford.gov.uk/online-applications",            # ConnErr GH→Colab
+    "Canterbury":        "https://pa.canterbury.gov.uk/online-applications",            # v17 DNS fix
+    "Maidstone":         "https://pa.maidstone.gov.uk/online-applications",
+    "Thanet":            "https://planning.thanet.gov.uk/online-applications",          # ConnErr GH→Colab
+    "Guildford":         "https://publicaccess.guildford.gov.uk/online-applications",   # v17 DNS fix
+    "Eastbourne":        "https://planning.eastbourne.gov.uk/online-applications",
+    "Worthing":          "https://planning.worthing.gov.uk/online-applications",
+    "Brighton":          "https://planningapps.brighton-hove.gov.uk/online-applications",
+    "Hastings":          "https://www.hastings.gov.uk/online-applications",
+    "Chichester":        "https://publicaccess.chichester.gov.uk/online-applications",
+    "Arun":              "https://www.arun.gov.uk/online-applications",
+    "Reigate":           "https://idox.reigate-banstead.gov.uk/online-applications",
 
-    # East of England
-    "Norfolk":        "https://idoxpa.north-norfolk.gov.uk/online-applications",
-    "Norwich":        "https://planning.norwich.gov.uk/online-applications",
-    "Ipswich":        "https://publicaccess.ipswich.gov.uk/online-applications",
-    "Cambridge":      "https://applications.greatercambridgeplanning.org/online-applications",
-    "Chelmsford":     "https://publicaccess.chelmsford.gov.uk/online-applications",
-    "Colchester":     "https://planningpa.colchester.gov.uk/online-applications",
-    "Luton":          "https://planning.luton.gov.uk/online-applications",
+    # ══ East of England ═════════════════════════════════
+    "Norfolk (N)":       "https://idoxpa.north-norfolk.gov.uk/online-applications",
+    "Norwich":           "https://planning.norwich.gov.uk/online-applications",         # 403 GH→Colab
+    "Cambridge":         "https://applications.greatercambridgeplanning.org/online-applications",
+    "Chelmsford":        "https://publicaccess.chelmsford.gov.uk/online-applications",
+    "Luton":             "https://planning.luton.gov.uk/online-applications",
+    "Braintree":         "https://publicaccess.braintree.gov.uk/online-applications",
+    "Basildon":          "https://planning.basildon.gov.uk/online-applications",
+    "Tendring":          "https://idox.tendringdc.gov.uk/online-applications",          # confirmed live
+    "Ipswich":           "https://publicaccess.ipswich.gov.uk/online-applications",     # may be down; Colab backup
 
-    # London
-    "Ealing":         "https://pam.ealing.gov.uk/online-applications",
-    "Lewisham":       "https://planning.lewisham.gov.uk/online-applications",
-    "Lambeth":        "https://planning.lambeth.gov.uk/online-applications",
-    "Croydon":        "https://publicaccess.croydon.gov.uk/online-applications",
-    "Brent":          "https://pa.brent.gov.uk/online-applications",
-    "Tower Hamlets":  "https://development.towerhamlets.gov.uk/online-applications",
-    "Greenwich":      "https://planning.royalgreenwich.gov.uk/online-applications",
-    "Hackney":        "https://planningapps.hackney.gov.uk/online-applications",
-    "Newham":         "https://pa.newham.gov.uk/online-applications",
-    "Wandsworth":     "https://planning.wandsworth.gov.uk/online-applications",
-    "Waltham Forest": "https://planning.walthamforest.gov.uk/online-applications",
-    "Hillingdon":     "https://pa.hillingdon.gov.uk/online-applications",
-    "Bromley":        "https://searchapps.bromley.gov.uk/online-applications",
-    "Harrow":         "https://planningsearch.harrow.gov.uk/online-applications",
-    "Havering":       "https://development.havering.gov.uk/online-applications",
-    "Redbridge":      "https://publicaccess.redbridge.gov.uk/online-applications",
-    "Bexley":         "https://pa.bexley.gov.uk/online-applications",
-    "Merton":         "https://planning.merton.gov.uk/online-applications",
-    "Kingston":       "https://publicaccess.kingston.gov.uk/online-applications",
-    "Richmond":       "https://www2.richmond.gov.uk/online-applications",
-    "Sutton":         "https://planningregister.sutton.gov.uk/online-applications",
-    "Hounslow":       "https://planningpa.hounslow.gov.uk/online-applications",
-    "Westminster":    "https://idoxpa.westminster.gov.uk/online-applications",
-    "Camden":         "https://camdocs.camden.gov.uk/online-applications",
-    "Southwark":      "https://planning.southwark.gov.uk/online-applications",
-    "Barnet":         "https://publicaccess.barnet.gov.uk/online-applications",
-    "Enfield":        "https://planningandbuildingcontrol.enfield.gov.uk/online-applications",
-    "Haringey":       "https://www.planningservices.haringey.gov.uk/online-applications",
+    # ══ London (Idox portals only) ═══════════════════════
+    # Portals using Northgate, Ocella, SwiftLG, Angular SPA have been removed.
+    # Non-Idox removed: Hackney, Waltham Forest, Harrow, Havering, Hillingdon,
+    #                   Hounslow, Merton, Redbridge, Wandsworth, Haringey,
+    #                   Camden, Richmond.
+    "Ealing":            "https://pam.ealing.gov.uk/online-applications",
+    "Lewisham":          "https://planning.lewisham.gov.uk/online-applications",
+    "Lambeth":           "https://planning.lambeth.gov.uk/online-applications",
+    "Croydon":           "https://publicaccess3.croydon.gov.uk/online-applications",   # v17 URL fix
+    "Brent":             "https://pa.brent.gov.uk/online-applications",
+    "Tower Hamlets":     "https://development.towerhamlets.gov.uk/online-applications",
+    "Greenwich":         "https://planning.royalgreenwich.gov.uk/online-applications",
+    "Newham":            "https://pa.newham.gov.uk/online-applications",               # ConnErr GH→Colab
+    "Bexley":            "https://pa.bexley.gov.uk/online-applications",               # ConnErr GH→Colab
+    "Kingston":          "https://publicaccess.kingston.gov.uk/online-applications",   # ConnErr GH→Colab
+    "Sutton":            "https://planningregister.sutton.gov.uk/online-applications",  # ConnErr GH→Colab
+    "Westminster":       "https://idoxpa.westminster.gov.uk/online-applications",      # ConnErr GH→Colab
+    "Southwark":         "https://planning.southwark.gov.uk/online-applications",      # ConnErr GH→Colab
+    "Barnet":            "https://publicaccess.barnet.gov.uk/online-applications",     # ConnErr GH→Colab
+    "Enfield":           "https://planningandbuildingcontrol.enfield.gov.uk/online-applications",  # ConnErr GH→Colab
+    "Bromley":           "https://searchapplications.bromley.gov.uk/online-applications",  # v17 URL fix
+    "Hammersmith":       "https://public-access.lbhf.gov.uk/online-applications",      # new v18
+    "City of London":    "https://www.planning2.cityoflondon.gov.uk/online-applications",  # new v18
 
-    # North East
-    "Newcastle":      "https://publicaccess.newcastle.gov.uk/online-applications",
-    "Gateshead":      "https://publicaccess.gateshead.gov.uk/online-applications",
-    "Sunderland":     "https://publicaccess.sunderland.gov.uk/online-applications",
-    "Durham":         "https://publicaccess.durham.gov.uk/online-applications",
+    # ══ North East ══════════════════════════════════════
+    "Sunderland":        "https://online-applications.sunderland.gov.uk/online-applications",  # v17 URL fix
+    "Durham":            "https://publicaccess.durham.gov.uk/online-applications",
+    "North Tyneside":    "https://idox.northtyneside.gov.uk/online-applications",       # new v18
+    # Newcastle/Gateshead — migrated away from Idox publicaccess subdomain;
+    # current portal URL unconfirmed; remove until verified.
 
-    # South Yorkshire
-    "Sheffield":      "https://planningapps.sheffield.gov.uk/online-applications",
-    "Rotherham":      "https://planningonline.rotherham.gov.uk/online-applications",
-    "Doncaster":      "https://www.doncaster.gov.uk/services/planning/planning-applications",
+    # ══ South Yorkshire ═════════════════════════════════
+    "Sheffield":         "https://planningapps.sheffield.gov.uk/online-applications",  # ConnErr GH→Colab
+    # Rotherham: uses Fastweb (planning.rotherham.gov.uk) — not Idox, removed.
+    # Doncaster: uses custom ASP.NET portal — not Idox, removed.
 
-    # North West (those reachable from US)
-    "Knowsley":       "https://publicaccess.knowsley.gov.uk/online-applications",
-    "Wirral":         "https://planning.wirral.gov.uk/online-applications",
-    "Cheshire East":  "https://pa.cheshireeast.gov.uk/online-applications",
-    "Lancaster":      "https://planning.lancaster.gov.uk/online-applications",
-    "Blackpool":      "https://idox.blackpool.gov.uk/online-applications",
-    "Preston":        "https://planning.preston.gov.uk/online-applications",
+    # ══ North West ══════════════════════════════════════
+    "Knowsley":          "https://publicaccess.knowsley.gov.uk/online-applications",   # ConnErr GH→Colab
+    "Wirral":            "https://planning.wirral.gov.uk/online-applications",         # ConnErr GH→Colab
+    "Cheshire East":     "https://pa.cheshireeast.gov.uk/online-applications",
+    "Lancaster":         "https://planning.lancaster.gov.uk/online-applications",      # ConnErr GH→Colab
+    "Blackpool":         "https://idoxpa.blackpool.gov.uk/online-applications",        # v17 URL fix
+    "Preston":           "https://www.preston.gov.uk/planning",
 
-    # ══ Persistent HTTP 500/connection from GitHub US IPs ══
-    # Run these manually from Colab where UK routing works:
+    # ══ Blocked from GitHub US IPs — run manually from Colab ═══════════
     # Manchester, Salford, Tameside, Trafford, Oldham, Bolton, Warrington
+    # (confirmed Idox, UK-IP only — see Colab notebook)
 }
 
 # ── Search keywords — what goes into the portal's description field ──────────
@@ -139,20 +152,45 @@ COUNCILS = {
 # win on appeal) where refusal was "lack of evidence" / sequential test failure.
 # NOT just supermarkets — gyms, salons, cafes, offices all fall under Class E.
 RETAIL_KEYWORDS = [
-    "Class E",          # the main use class — catches gyms, shops, offices, cafes
-    "change of use",    # most of these apps say "change of use to Class E"
-    "shop",             # traditional retail
+    # ── Core Class E use class terms ─────────────────────────────────────
+    "Class E",          # the main use class umbrella
+    "change of use",    # CoU apps say "change of use to Class E"
+    "use class e",      # alternative phrasing
+
+    # ── Traditional retail ───────────────────────────────────────────────
+    "shop",             # A1/Class E retail unit
     "retail",           # retail-specific applications
     "supermarket",      # large format food retail
     "convenience",      # convenience stores
-    "gym",              # health & fitness — Class E(d)
-    "hair",             # hair & beauty salons — Class E
-    "beauty",           # beauty salons — Class E
-    "café", "cafe",     # cafes / restaurants — Class E
+    "food store",       # food retail (alternative to supermarket)
+    "discount store",   # Aldi/Lidl type retail
+
+    # ── Food & beverage (Class E) ────────────────────────────────────────
+    "café", "cafe",     # cafes — Class E
     "restaurant",       # restaurants — Class E
-    "hot food",         # hot food takeaway — often Class E boundary cases
-    "office",           # offices — Class E(g)
-    "sui generis",      # use that doesn't fit a class — often sequential test needed
+    "hot food",         # hot food takeaway — Class E boundary
+    "takeaway",         # hot food takeaway
+    "coffee shop",      # coffee shops e.g. Costa
+
+    # ── Health & fitness / personal services (Class E) ───────────────────
+    "gym",              # health & fitness — Class E(d)
+    "fitness",          # fitness studio / health club
+    "hair",             # hair salons — Class E
+    "beauty",           # beauty salons — Class E
+    "nail",             # nail bars — Class E
+    "barber",           # barbers — Class E
+    "health centre",    # health / medical — Class E(e)
+    "clinic",           # GP / dental / medical clinic
+
+    # ── Office / workspace (Class E) ─────────────────────────────────────
+    "office",           # offices — Class E(g)(i)
+    "workspace",        # co-working/flex workspace
+
+    # ── Other relevant types ─────────────────────────────────────────────
+    "sui generis",      # uses outside a class — sequential test often needed
+    "betting",          # betting shops — sui generis, out-of-centre issues
+    "amusement",        # amusement centres — sui generis
+    "car wash",         # car washes often refused for sequential test
 ]
 
 # ── PDF trigger words — searched inside the Decision Notice PDF ──────────────
@@ -168,37 +206,109 @@ RETAIL_KEYWORDS = [
 #                                        applicant didn't submit a document.
 #                                        Easy fix on appeal = high value lead.
 PDF_TRIGGERS = [
-    # Location / sequential test (Mark's top picks)
+    # ── Location / sequential test ────────────────────────────────────────
+    # Mark's confirmed top picks — out-of-centre = classic appeal ground
     "out of centre",
     "out-of-centre",
+    "outside the town centre",
+    "outside a defined centre",
     "edge of centre",
     "edge-of-centre",
+    "edge of the town centre",
+    "out of town",
+    "out-of-town",
+    "not within the town centre",
+    "not in a town centre",
+
+    # ── Sequential test failure ──────────────────────────────────────────
+    # NPPF paragraph 90/87 — must prove no sequentially preferable sites
     "sequential test",
     "sequential approach",
     "sequential assessment",
+    "sequential preference",
+    "sequential search",
     "no sequential",
-    # Impact assessment
+    "fail the sequential",
+    "failed the sequential",
+    "fails the sequential",
+    "sequential step",
+    "sequentially preferable",
+    "sequentially preferred",
+
+    # ── Retail impact ────────────────────────────────────────────────────
     "retail impact assessment",
     "retail impact",
+    "retail impact study",
     "impact assessment",
+    "impact on the vitality",
+    "impact on vitality",
+    "impact on the viability",
+    "impact on viability",
     "town centre impact",
-    # NPPF / policy framework
+    "adverse impact on the town centre",
+    "impact on the primary",
+
+    # ── NPPF / planning policy framework ────────────────────────────────
     "nppf",
+    "national planning policy framework",
     "main town centre",
+    "main town centre use",
+    "primary shopping area",
     "primary shopping",
     "primary retail",
+    "primary frontage",
+    "defined town centre",
     "town centre first",
-    # Winnable "lack of evidence" refusals (Mark's insight)
+    "town centre boundary",
+    "shopping frontage",
+    "retail frontage",
+
+    # ── Winnable "lack of evidence" refusals ────────────────────────────
+    # Mark's key insight: council refused because applicant didn't submit
+    # a document — easy fix on appeal = highest value leads
     "lack of evidence",
     "insufficient evidence",
     "no evidence",
+    "lack of information",
+    "insufficient information",
     "failure to demonstrate",
     "failed to demonstrate",
+    "fails to demonstrate",
     "not demonstrated",
+    "has not demonstrated",
+    "cannot demonstrate",
+    "unable to demonstrate",
     "no information",
     "no assessment",
+    "no retail impact",
     "has not been submitted",
     "not been provided",
+    "has not been provided",
+    "was not submitted",
+    "not been submitted",
+    "absence of",
+    "in the absence of",
+
+    # ── Vitality & viability ─────────────────────────────────────────────
+    "vitality and viability",
+    "vitality or viability",
+    "harm to the vitality",
+    "harm to vitality",
+    "harmful to the vitality",
+    "undermine the vitality",
+    "prejudice the vitality",
+    "health of the town centre",
+
+    # ── Use class references in decision notices ─────────────────────────
+    "class e use",
+    "class e(a)",
+    "class e(b)",
+    "class e(c)",
+    "class e(d)",
+    "class e(f)",
+    "class e(g)",
+    "sui generis use",
+    "use class order",
 ]
 
 HEADERS_HTTP = {
@@ -288,20 +398,41 @@ def preflight_check(councils):
     def _test(name_url):
         name, base_url = name_url
         test_url = f"{base_url}/search.do?action=advanced&searchType=Application"
-        try:
-            sess = new_session()
-            r = sess.get(test_url, timeout=15, allow_redirects=True, verify=False)
-            if r.status_code == 200:
-                has_form = bool(BeautifulSoup(r.text, "html.parser").find("form"))
-                return name, base_url, "ok" if has_form else "no_form", r.status_code
-            return name, base_url, "bad_status", r.status_code
-        except requests.exceptions.ConnectionError as e:
-            reason = "DNS" if _is_dns_error(e) else "ConnErr"
-            return name, base_url, reason, 0
-        except requests.exceptions.Timeout:
-            return name, base_url, "Timeout", 0
-        except Exception as e:
-            return name, base_url, f"Err:{type(e).__name__}", 0
+        headers_variants = [
+            # Primary attempt — full browser Accept
+            None,
+            # Fallback — wildcard Accept (fixes some 406 rejections)
+            {"Accept": "text/html,*/*;q=0.9", "Accept-Language": "en-GB,en;q=0.5"},
+        ]
+        for extra_headers in headers_variants:
+            try:
+                sess = new_session()
+                if extra_headers:
+                    sess.headers.update(extra_headers)
+                r = sess.get(test_url, timeout=15, allow_redirects=True, verify=False)
+                if r.status_code == 200:
+                    soup = BeautifulSoup(r.text, "html.parser")
+                    has_form = bool(soup.find("form"))
+                    # A disclaimer gate (no search form yet) still means the
+                    # portal is live — mark OK and let the scraper handle it.
+                    has_planning_content = any(
+                        kw in r.text.lower()
+                        for kw in ("planning", "application", "search", "disclaimer")
+                    )
+                    if has_form or has_planning_content:
+                        return name, base_url, "ok", r.status_code
+                    return name, base_url, "no_form", r.status_code
+                if r.status_code == 406 and extra_headers is None:
+                    continue  # retry with wildcard Accept
+                return name, base_url, "bad_status", r.status_code
+            except requests.exceptions.ConnectionError as e:
+                reason = "DNS" if _is_dns_error(e) else "ConnErr"
+                return name, base_url, reason, 0
+            except requests.exceptions.Timeout:
+                return name, base_url, "Timeout", 0
+            except Exception as e:
+                return name, base_url, f"Err:{type(e).__name__}", 0
+        return name, base_url, "bad_status", 406
 
     # Run checks in parallel — max 8 threads to avoid hammering
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
@@ -495,64 +626,110 @@ def score_lead(desc, triggers):
       - Small single-use apps are MORE winnable than large retail parks
       - sqm size is NOT a quality signal — small salons/gyms score just as well
     """
-    s  = 40   # base — lower than before, room to reward the right signals
+    s  = 40   # base
     d  = desc.lower()
     tw = " ".join(triggers).lower()
 
-    # ── Trigger word quality (from PDF) — highest weight ─────────────────
-    # "Lack of evidence" = most winnable refusal type
-    for w in ("lack of evidence", "insufficient evidence", "no evidence",
-              "failure to demonstrate", "failed to demonstrate",
-              "not demonstrated", "no information", "no assessment",
-              "has not been submitted", "not been provided"):
+    # ── "Lack of evidence" family — most winnable refusal type ──────────
+    _evidence_phrases = (
+        "lack of evidence", "insufficient evidence", "no evidence",
+        "lack of information", "insufficient information",
+        "failure to demonstrate", "failed to demonstrate", "fails to demonstrate",
+        "not demonstrated", "has not demonstrated", "cannot demonstrate",
+        "unable to demonstrate",
+        "no information", "no assessment", "no retail impact",
+        "has not been submitted", "not been provided", "has not been provided",
+        "was not submitted", "not been submitted",
+        "absence of", "in the absence of",
+    )
+    for w in _evidence_phrases:
         if w in tw:
             s += 25   # massive bonus — Mark explicitly called these out
             break     # only count once
 
-    # Sequential test failure = core appeal ground
-    if "sequential test"     in tw: s += 20
-    if "sequential approach" in tw: s += 15
-    if "sequential assessment" in tw: s += 15
-    if "no sequential"       in tw: s += 15
+    # ── Sequential test failure — core NPPF appeal ground ──────────────
+    _seq_phrases = (
+        "sequential test", "sequential approach", "sequential assessment",
+        "sequential preference", "sequential search", "sequential step",
+        "sequentially preferable", "sequentially preferred",
+        "fail the sequential", "failed the sequential", "fails the sequential",
+    )
+    for w in _seq_phrases:
+        if w in tw:
+            s += 20
+            break
+    if "no sequential" in tw: s += 15
 
-    # Out-of-centre location
-    if "out of centre"  in tw or "out-of-centre"  in tw: s += 15
-    if "edge of centre" in tw or "edge-of-centre" in tw: s += 10
+    # ── Out-of-centre location ───────────────────────────────────────────
+    _outofcentre = (
+        "out of centre", "out-of-centre", "outside the town centre",
+        "outside a defined centre", "out of town", "out-of-town",
+        "not within the town centre", "not in a town centre",
+    )
+    for w in _outofcentre:
+        if w in tw:
+            s += 15
+            break
+    _edgeofcentre = (
+        "edge of centre", "edge-of-centre",
+        "edge of the town centre",
+    )
+    for w in _edgeofcentre:
+        if w in tw:
+            s += 10
+            break
 
-    # Retail impact not assessed
-    if "retail impact assessment" in tw: s += 15
-    if "retail impact"            in tw: s += 10
-    if "impact assessment"        in tw: s += 8
+    # ── Retail impact not assessed ───────────────────────────────────────
+    if "retail impact assessment" in tw or "retail impact study" in tw: s += 15
+    elif "retail impact"          in tw:                                 s += 10
+    elif "impact assessment"      in tw:                                 s += 8
+    for w in ("impact on the vitality", "impact on vitality",
+              "impact on the viability", "impact on viability",
+              "harm to the vitality", "harm to vitality",
+              "adverse impact on the town centre"):
+        if w in tw:
+            s += 8
+            break
 
-    # ── Description signals ───────────────────────────────────────────────
-    # Class E change of use = exactly what Mark wants
+    # ── Vitality & viability ─────────────────────────────────────────────
+    for w in ("vitality and viability", "vitality or viability",
+              "health of the town centre", "undermine the vitality",
+              "prejudice the vitality"):
+        if w in tw:
+            s += 5
+            break
+
+    # ── Description signals — use type ──────────────────────────────────
     if "class e"        in d: s += 10
-    if "change of use"  in d: s += 8
     if "use class e"    in d: s += 10
+    if "change of use"  in d: s += 8
 
     # Specific Class E sub-types Mark mentioned as good leads
-    for w in ("gym", "hair", "beauty", "salon", "café", "cafe",
-              "restaurant", "hot food", "takeaway", "office"):
+    for w in ("gym", "fitness", "hair", "beauty", "salon",
+              "nail", "barber", "café", "cafe", "coffee",
+              "restaurant", "hot food", "takeaway", "office", "clinic"):
         if w in d:
             s += 5
             break
 
-    # Traditional retail — still valuable but not prioritised over small CoU
+    # Traditional retail — valuable but not prioritised over small CoU
     if "supermarket"  in d: s += 8
     if "food store"   in d: s += 8
     if "retail park"  in d: s += 5
     if "convenience"  in d: s += 5
     if "shop"         in d: s += 3
 
-    # ── Penalise applications that are NOT what Mark wants ───────────────
-    # "Discharge of condition" / "approval of reserved matters" — Mark
-    # explicitly said these are NOT good leads (they're post-approval admin,
-    # not the project approval itself)
-    for bad in ("discharge of condition", "discharge of planning condition",
-                "reserved matters", "approval of details", "condition discharge",
-                "details reserved by condition", "approval of reserved"):
+    # ── Penalise non-lead application types ──────────────────────────────
+    # Mark explicitly: discharge of conditions / reserved matters = NOT leads
+    for bad in (
+        "discharge of condition", "discharge of planning condition",
+        "reserved matters", "approval of details", "condition discharge",
+        "details reserved by condition", "approval of reserved",
+        "prior approval", "lawful development certificate",
+        "certificate of lawful",
+    ):
         if bad in d:
-            s -= 60   # hard penalty — always results in score below 10 minimum
+            s -= 60   # always results in score below 10 minimum
             break
 
     return max(10, min(s, 100))
@@ -1760,7 +1937,7 @@ def run():
     date_from = (today - timedelta(weeks=WEEKS_TO_SCRAPE)).strftime("%d/%m/%Y")
 
     print("=" * 60)
-    print(f"🏗️  MAPlanning Retail Lead Engine v17")
+    print(f"🏗️  MAPlanning Retail Lead Engine v18")
     print(f"📅  {today.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"📆  {date_from} → {date_to}  ({WEEKS_TO_SCRAPE} weeks)")
     print(f"🏛️  {len(COUNCILS)} councils configured")
