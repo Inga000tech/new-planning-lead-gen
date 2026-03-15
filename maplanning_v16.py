@@ -738,15 +738,15 @@ def get_weekly_lead_count():
         log(f"⚠️  Could not read weekly leads from sheet: {e}")
         return 0, []
 
-    def write_lead(lead):
-        ws = get_sheet()
-        if not ws:
-            return False
+def write_lead(lead):
+    ws = get_sheet()
+    if not ws:
+        return False
 
-        # Fast in-memory dedup check
-        if lead["ref"] in _existing_refs:
-            log(f"  ⏭️  Duplicate: {lead['ref']}")
-            return False
+    # Fast in-memory dedup check
+    if lead["ref"] in _existing_refs:
+        log(f"  ⏭️  Duplicate: {lead['ref']}")
+        return False
 
     row_data = [
         lead["council"], lead["ref"], lead["addr"], lead["desc"],
@@ -766,18 +766,18 @@ def get_weekly_lead_count():
     ]
 
     try:
+        # Use lambda here to match your retry logic
         sheets_retry(lambda: ws.append_row(row_data))
-        _existing_refs.add(lead["ref"])  # update in-memory cache
+        _existing_refs.add(lead["ref"]) 
 
-        # Colour the row: green = confirmed refusal, red = approved/unclear
         try:
             all_rows   = sheets_retry(lambda: ws.get_all_values())
-            row_num    = len(all_rows)   # the row we just appended
+            row_num    = len(all_rows)
             dec        = lead.get("decision", "").upper()
             is_refused = dec == "REFUSED" or dec.startswith("REFUSED")
             r, g, b    = (0.85, 0.93, 0.85) if is_refused else (0.96, 0.80, 0.80)
-            rng        = f"A{row_num}:X{row_num}"
-            fmt_body   = {
+            
+            fmt_body = {
                 "requests": [{
                     "repeatCell": {
                         "range": {
@@ -796,7 +796,7 @@ def get_weekly_lead_count():
             }
             sheets_retry(lambda: ws.spreadsheet.batch_update(fmt_body))
         except Exception:
-            pass  # formatting is cosmetic — never block a save
+            pass 
 
         log(f"  💾 SAVED: {lead['ref']} | {lead['triggers'][:50]}")
         return True
