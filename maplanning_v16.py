@@ -196,6 +196,29 @@ COUNCILS = {
     "North Herts":       "https://www.north-herts.gov.uk/online-applications",
     "Huntingdonshire":   "https://publicaccess.huntingdonshire.gov.uk/online-applications",
 
+    # ══ North East (add alongside Sunderland, Durham, etc.) ══════════
+"Newcastle":         "https://publicaccess.newcastle.gov.uk/online-applications",
+"Gateshead":         "https://planning.gateshead.gov.uk/online-applications",
+
+# ══ West Midlands (add alongside Birmingham, Coventry, etc.) ═════
+"Sandwell":          "https://www.sandwell.gov.uk/online-applications",
+"Stoke-on-Trent":    "https://www.stoke.gov.uk/online-applications",
+"Tamworth":          "https://www.tamworth.gov.uk/online-applications",
+
+# ══ East Midlands (add alongside Nottingham, Derby, etc.) ════════
+"Gedling":           "https://www.gedling.gov.uk/online-applications",
+"Broxtowe":          "https://www.broxtowe.gov.uk/online-applications",
+"Mansfield":         "https://www.mansfield.gov.uk/online-applications",
+"Rushcliffe":        "https://planningon.rushcliffe.gov.uk/online-applications",
+"Newark":            "https://www.newark-sherwooddc.gov.uk/online-applications",
+
+# ══ East of England (add alongside Chelmsford, Braintree, etc.) ══
+"Brentwood":         "https://www.brentwood.gov.uk/online-applications",
+"Epping Forest":     "https://www.eppingforestdc.gov.uk/online-applications",
+
+# ══ London ═══════════════════════════════════════════════════════
+"Barking Dagenham":  "https://paplan.lbbd.gov.uk/online-applications",
+
     # ══ London (Idox portals only) ════════════════════════════
     # Non-Idox: Hackney, Waltham Forest, Harrow, Havering, Hillingdon,
     #           Hounslow, Merton, Redbridge, Wandsworth, Haringey, Camden, Richmond
@@ -265,6 +288,14 @@ RETAIL_KEYWORDS = [
     "betting",          # betting shops — sui generis, out-of-centre issues
     "amusement",        # amusement centres — sui generis
     "car wash",         # car washes often refused for sequential test
+
+    # ── Additional Class E / mixed use terms ─────────────────────
+    "mixed use",        # common in retail-led mixed use schemes
+    "pharmacy",         # Class E(e) health — often refused out-of-centre
+    "optician",         # Class E — common CoU application type
+    "drive-through",    # Class E boundary, sequential test almost always required
+    "drive through",    # alternative spelling (both needed)
+    "food and drink",   # F&B use class grouping in many officer reports
 ]
 
 # ── PDF trigger words — searched inside the Decision Notice PDF ──────────────
@@ -367,6 +398,25 @@ PDF_TRIGGERS = [
     "adverse impact on the vitality",
     "undermine the vitality",
     "prejudice the vitality",
+
+        # ── 6. NO IDENTIFIED NEED / NEED NOT DEMONSTRATED ────────────────────
+    # MARK'S "LACK OF EVIDENCE" FAMILY — extended.
+    # These are refusals where the council says the applicant didn't prove
+    # there is a need for the use in that location. Identical appeal ground
+    # to "lack of evidence" — easy to address on resubmission or appeal.
+    "no identified need",
+    "no quantitative need",
+    "no qualitative need",
+    "need has not been",
+    "need has not been demonstrated",
+    "no overriding need",
+    "need not been established",
+    "unmet need",
+    "no need has been",
+    "insufficient justification",
+    "failed to justify",
+    "fails to justify",
+    "not justified",
 ]
 
 # ── Minimum lead score to write to sheet ─────────────────────────────────────
@@ -688,7 +738,7 @@ def get_weekly_lead_count():
         log(f"⚠️  Could not read weekly leads from sheet: {e}")
         return 0, []
 
-
+    def write_lead(lead):
     ws = get_sheet()
     if not ws:
         return False
@@ -784,6 +834,10 @@ def score_lead(desc, triggers):
         "has not been submitted", "not been provided", "has not been provided",
         "was not submitted", "not been submitted",
         "absence of", "in the absence of",
+        # ── New: need family (same scoring tier) ──────────────────
+        "no identified need", "no quantitative need", "no qualitative need",
+        "need has not been demonstrated", "no overriding need",
+        "insufficient justification", "failed to justify", "not justified",
     )
     for w in _evidence_phrases:
         if w in tw:
@@ -1663,6 +1717,12 @@ _APPROVAL_EXACT = [
 ]
 _REFUSAL_EXACT = [
     "refused", "refuse", "refusal",
+    "application refused",
+    "planning permission refused",
+    "delegated refusal",
+    "committee refusal",
+    "rfsd",                          # Idox internal decision code used by some councils
+    "rfd",                           # alternative Idox code
     "appeal dismissed", "appeal is dismissed",
 ]
 
@@ -1789,22 +1849,6 @@ def get_details(sess, base_url, key_val):
             if "agent name"     in label and not d.get("agent"):     d["agent"]     = value
             if label == "agent"           and not d.get("agent"):     d["agent"]     = value
             if "application type" in label and not d.get("app_type"): d["app_type"] = value
-    return d
-    time.sleep(0.5)
-    r2 = safe_get(sess, f"{base_url}/applicationDetails.do?activeTab=details&keyVal={key_val}")
-    if r2 and r2.status_code == 200:
-        soup2 = BeautifulSoup(r2.text, "html.parser")
-        for row in soup2.select("tr"):
-            th = row.find("th")
-            td = row.find("td")
-            if not th or not td:
-                continue
-            label = th.get_text(strip=True).lower().strip()
-            value = td.get_text(strip=True)
-            if "applicant name"    in label and not d.get("applicant"): d["applicant"] = value
-            if "agent name"        in label and not d.get("agent"):     d["agent"]     = value
-            if label == "agent"             and not d.get("agent"):     d["agent"]     = value
-            if "application type"  in label and not d.get("app_type"): d["app_type"]  = value
     return d
 
 # DOCUMENT FINDER
@@ -2161,6 +2205,13 @@ def process_app(sess, base_url, council, item):
         "listed building consent", # heritage only — not a lead
         "tree preservation",       # TPO application — not a lead
         "hedgerow removal",
+        "non-material amendment",   # minor wording change to an approved app — not a lead
+        "minor material amendment", # s73 variation — amending existing consent
+        "section 73",               # s73 applications — variation of condition
+        "s73",                      # abbreviated form used in many descriptions
+        "screening opinion",        # EIA screening — pre-application, not a decision
+        "scoping opinion",          # EIA scoping — pre-application
+        "environmental impact assessment screening",
     )
     if any(bad in desc_lower for bad in _not_leads):
         log(f"  ⏭️  Not a project approval (post-approval admin / non-planning) — skip", 2)
