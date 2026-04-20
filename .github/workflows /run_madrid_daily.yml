@@ -1,0 +1,60 @@
+name: PlanningScout — Madrid Daily Scrape
+
+on:
+  schedule:
+    # 3:00 UTC = 4:00 AM Madrid winter (CET=UTC+1) / 5:00 AM summer (CEST=UTC+2)
+    # Runs Mon–Fri automatically. No manual click needed.
+    - cron: '0 3 * * 1-5'
+
+  workflow_dispatch:
+    # ── Manual trigger — choose how many weeks to backfill ───────────────────
+    # Leave blank (or pick "1") for a normal daily scan.
+    # Pick "4", "8", or "12" after updating keywords to backfill history.
+    inputs:
+      weeks:
+        description: 'Weeks to scrape (1=daily, 4=month, 8=2mo, 12=3mo)'
+        required: false
+        default: '1'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '4'
+          - '8'
+          - '12'
+          - '16'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350    # Must be > MAX_RUN_MINUTES + overhead
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Madrid scraper
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          OPENAI_API_KEY:           ${{ secrets.OPENAI_API_KEY }}
+          GMAIL_FROM:               ${{ secrets.GMAIL_FROM }}
+          GMAIL_APP_PASSWORD:       ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_TO_DEMO_MADRID:     ${{ secrets.GMAIL_TO_DEMO_MADRID }}
+          MAX_RUN_MINUTES:          "340"
+        run: |
+          # Determine weeks: use input if triggered manually, else always 1 (daily)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            WEEKS="${{ github.event.inputs.weeks }}"
+          else
+            WEEKS="1"
+          fi
+          echo "Running with --weeks $WEEKS"
+          python core/engine.py --client clients/demo_madrid.json --weeks $WEEKS
